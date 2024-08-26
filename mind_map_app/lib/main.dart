@@ -1,7 +1,17 @@
 import 'package:flutter/material.dart';
 
+import 'package:flutter_vicr_widgets/flutter_vicr_widgets.dart';
+
 void main() {
-  runApp(const MainApp());
+  
+  VictMaterialApp().loadSettings();
+  runApp(
+    VictMaterialApp(
+      routes: {
+        '/': (context) => MainApp(),
+      }
+    )
+  );
 }
 
 class MainApp extends StatelessWidget {
@@ -9,11 +19,15 @@ class MainApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(
-      home: Scaffold(
-        body: Center(
-          child: Text('Hello World!'),
+    return Scaffold(
+      appBar: AppBar(actions: [
+        IconButton(
+          icon: Icon(Icons.settings),
+          onPressed: () => Navigator.pushNamed(context, '/configs'),
         ),
+      ],),
+      body: Center(
+        child: Text("Hello World!")
       ),
     );
   }
