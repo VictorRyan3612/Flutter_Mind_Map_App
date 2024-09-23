@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-
 import 'package:flutter_vicr_widgets/flutter_vicr_widgets.dart';
+import 'package:mind_map_app/screens/graph_screen.dart';
 
 void main() {
   
@@ -19,6 +19,7 @@ class MainApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+
     return Scaffold(
       appBar: AppBar(actions: [
         IconButton(
@@ -26,9 +27,7 @@ class MainApp extends StatelessWidget {
           onPressed: () => Navigator.pushNamed(context, '/configs'),
         ),
       ],),
-      body: Center(
-        child: Text("Hello World!")
-      ),
+      body: GraphScreen()
     );
   }
 }
