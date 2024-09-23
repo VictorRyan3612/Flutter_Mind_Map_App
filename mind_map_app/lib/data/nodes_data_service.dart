@@ -48,7 +48,29 @@ class Edge{
     this.curvad = false
   });
 
+}
 
+
+void showContextMenu(BuildContext context, Offset position, 
+    {List<ListTile>? listTiles}) {
+  
+  var positionFinal = RelativeRect.fromLTRB(position.dx, position.dy, position.dx, position.dy);
+  var itemsFinal = [];
+
+  if (listTiles != null && listTiles.isNotEmpty) {
+    itemsFinal = List.generate(listTiles.length, (index) {
+      return PopupMenuItem(
+        value: index,
+        child: listTiles[index]
+      );
+    });
+    showMenu(
+      context: context,
+      position: positionFinal,
+      elevation: 8.0,
+      items: List.from(itemsFinal)
+    );
+  }   
 }
 
 class NodesDataService {
@@ -78,4 +100,4 @@ class NodesDataService {
   }
 }
 
-NodesDataService estado = NodesDataService();
+NodesDataService nodesDataService = NodesDataService();
