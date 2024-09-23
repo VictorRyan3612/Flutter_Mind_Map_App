@@ -51,19 +51,30 @@ class Edge{
 }
 
 
-void showContextMenu(BuildContext context, Offset position, 
-    {List<ListTile>? listTiles}) {
+void showContextMenu(BuildContext context, 
+    {List<ListTile>? listTiles, Offset? positionOffset, RelativeRect? positionRelativeRect}) {
+    assert(positionOffset != null || positionRelativeRect != null, 'One parameter must be provided, but not both.');
+    assert(!(positionOffset != null && positionRelativeRect != null), 'Both parameters cannot be provided');
   
-  var positionFinal = RelativeRect.fromLTRB(position.dx, position.dy, position.dx, position.dy);
   var itemsFinal = [];
 
   if (listTiles != null && listTiles.isNotEmpty) {
+    late RelativeRect positionFinal;
+
+    if(positionOffset != null){
+      positionFinal = RelativeRect.fromLTRB(positionOffset.dx, positionOffset.dy, positionOffset.dx, positionOffset.dy);
+    }
+    if (positionRelativeRect != null) {
+      positionFinal = positionRelativeRect;
+    }
+
     itemsFinal = List.generate(listTiles.length, (index) {
       return PopupMenuItem(
         value: index,
         child: listTiles[index]
       );
     });
+
     showMenu(
       context: context,
       position: positionFinal,
