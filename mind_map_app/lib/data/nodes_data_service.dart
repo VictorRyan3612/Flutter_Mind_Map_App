@@ -26,12 +26,12 @@ class Node {
         position = position ?? RelativeRect.fromLTRB(0.0, 0.0, 0.0, 0.0);
 
 
-
+  
 }
 
 class Edge{
   int id;
-  int idSouce;
+  int idSource;
   int idDestination;
   Color color;
   double size;
@@ -40,15 +40,47 @@ class Edge{
 
   Edge({
     this.id = 0,
-    required this.idSouce,
+    required this.idSource,
     required this.idDestination,
-    this.color = Colors.black,
+    this.color = Colors.red,
     this.size = 5.0,
     this.arrow = false,
     this.curvad = false
-  });
+  }){
+    assert(idSource != idDestination, "idSource and idDestination must be different");
+    assert(idSource >= 0, "idSource must be greater than or equal to 0");
+    assert(idDestination >= 0, "idDestination must be greater than or equal to 0");
+  }
 
-}
+  static Color determineEdgeColor(context, Color color) {
+    if (color != Colors.transparent) {
+      // Se o nó tiver uma cor definida, usa a cor do nó
+      return color;
+    }
+    // Caso contrário, usa a cor com base no tema (tema claro = preto, tema escuro = branco)
+    return Theme.of(context).brightness == Brightness.dark ? Colors.white : Colors.black;
+  }
+
+  @override
+  String toString() {
+    return 'Edge(id: $id, idSource: $idSource, idDestination: $idDestination, color: $color, size: $size, arrow: $arrow, curvad: $curvad)';
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'idSource': idSource,
+      'idDestination': idDestination,
+      'color': color, 
+      'size': size,
+      'curvad': curvad,
+      'arrow': arrow,
+    };
+  }
+  
+  // Example of creation using determineEdgeColor:
+  // Edge(idSouce: 0, idDestination: 1, color: Edge.determineEdgeColor(context, nodesDataService.firstSelectedNode.value!.color));
+} 
 
 
 void showContextMenu(BuildContext context, 
