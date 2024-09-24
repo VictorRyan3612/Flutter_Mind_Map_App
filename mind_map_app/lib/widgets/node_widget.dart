@@ -11,6 +11,8 @@ class NodeWidget extends HookWidget {
     return Padding(
       padding: const EdgeInsets.all(8.0),
       child: Container(
+        width: node.width,
+        height: node.height,
         // width: sizeNotifier.value.width,
         // height: sizeNotifier.value.height,
         decoration: BoxDecoration(
