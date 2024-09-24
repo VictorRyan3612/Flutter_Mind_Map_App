@@ -50,7 +50,17 @@ class Edge{
     assert(idSource != idDestination, "idSource and idDestination must be different");
     assert(idSource >= 0, "idSource must be greater than or equal to 0");
     assert(idDestination >= 0, "idDestination must be greater than or equal to 0");
+     // Avisar se a cor é preta ou branca
+    if (isBlackOrWhite(color)) {
+      print("Warning: Using black or white color for edges is not recommended because background themes.");
+    }
   }
+
+  // Método para verificar se a cor é preta ou branca
+  static bool isBlackOrWhite(Color color) {
+    return color == Colors.black || color == Colors.white;
+  }
+
 
   static Color determineEdgeColor(context, Color color) {
     if (color != Colors.transparent) {
