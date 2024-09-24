@@ -3,30 +3,56 @@ import 'package:flutter/material.dart';
 
 
 class Node {
-  int? id;
+  int id;
   String text;
   Color color;
-  RelativeRect position;
+  Offset position;
   double width;
   double height;
   BorderRadiusGeometry borderRadius;
 
   Node({
-    this.id,
+    this.id = 0,
     this.text = '',
-    RelativeRect? position,
     this.color = Colors.red,
+    this.position = Offset.zero,
     double? width,
     double? height,
-
     BorderRadiusGeometry? borderRadius,
-  })  : width = width ?? 20,
+  })  : width = width ?? 50,
         height = height ?? 20,
         borderRadius = borderRadius ?? BorderRadius.circular(20),
-        position = position ?? RelativeRect.fromLTRB(0.0, 0.0, 0.0, 0.0);
+        assert((width ?? 50) > 0, 'Width must be greater than zero'),
+        assert((height ?? 20) > 0, 'Height must be greater than zero'),
+        assert(id >= 0, 'Id must be greater than zero') 
+    {
+      if (isBlackOrWhite(color)) {
+        print("Warning: Using black or white color for Nodes is not recommended because background themes.");
+      }
+    }
 
+  static bool isBlackOrWhite(Color color) {
+    return color == Colors.black || color == Colors.white;
+  }
 
-  
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'text': text,
+      'color': color,
+      'position': {'dx': position.dx, 'dy': position.dy},
+      'width': width,
+      'height': height,
+      'borderRadius': (borderRadius as BorderRadius).toString(),
+    };
+  }
+
+  // Converte a instância para uma String legível
+  @override
+  String toString() {
+    return 'Node(id: $id, text: $text, color: $color, position: $position, width: $width, height: $height, borderRadius: $borderRadius)';
+  }
+
 }
 
 class Edge{
