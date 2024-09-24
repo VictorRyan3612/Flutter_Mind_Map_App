@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
+
 
 
 class Node {
@@ -132,24 +132,50 @@ class NodesDataService {
   ValueNotifier<Node?> firstSelectedNode = ValueNotifier(null);
   ValueNotifier<Node?> secondSelectedNode = ValueNotifier(null);
 
+  // Retornar o Id mais alto possível dependendo do tipo node ou edge
+  int getMaxIdByType(Type T) {
+    assert(T == Node || T == Edge, 'Type must be node or edge');
 
-  // Função para adicionar um novo node com o ID mais alto possível
-  void addNode(Node node) {
     int nextId = 0;
+    int maxId = 0;
+    var listfinal = [];
 
-    if (nodes.value.isNotEmpty) {
-      int maxId = 0;
-
-      nodes.value.forEach((n) {
-        if ((n.id ?? 0) > maxId) {
-          maxId = n.id ?? 0;
-        }
-      });
-      nextId = maxId + 1;
+    if (T == Node) {
+      listfinal = nodes.value;
+    }
+    if (T == Edge) {
+      listfinal = edges.value;
     }
 
-    node.id = nextId;
-    nodes.value = [...nodes.value, node];
+    if (listfinal.isNotEmpty) {
+      listfinal.forEach((n) {
+        if (n.id > maxId) {
+          maxId = n.id;
+        }
+      });
+      
+    }
+    if (maxId == 0) {
+      nextId = maxId;
+      return  nextId;
+      } 
+    else {
+      nextId = maxId + 1;
+
+      return  nextId;
+    }
+  }
+
+
+  dynamic getFirstByType(Type T, int id){
+    assert(T == Node || T == Edge, 'Type must be node or edge');
+    
+    if (T == Node) {
+      return nodes.value.firstWhere((element) => element.id == id);
+    } 
+    else if(T == Edge){
+      return edges.value.firstWhere((element) => element.id == id);
+    }
   }
 }
 
