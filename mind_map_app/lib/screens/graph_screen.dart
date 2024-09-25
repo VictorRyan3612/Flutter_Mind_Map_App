@@ -27,7 +27,7 @@ class GraphScreen extends StatelessWidget {
         onTap: () {
           nodesDataService.nodes.value.add(Node(id: 0, color: Colors.red, position: Offset(50, 50)));
           nodesDataService.nodes.value.add(Node(id: 1, color: Colors.blue, position: Offset(100, 100)));
-          nodesDataService.edges.value.add(Edge(idSource: 0, idDestination: 1, color: Colors.orange));
+          nodesDataService.edges.value.add(Edge(idSource: 0, idDestination: 1, color: Colors.orange, curvad: true));
           nodesDataService.nodes.notifyListeners();
           nodesDataService.edges.notifyListeners();
           Navigator.pop(context);

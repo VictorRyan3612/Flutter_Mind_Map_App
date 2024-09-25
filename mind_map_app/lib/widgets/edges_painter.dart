@@ -26,9 +26,17 @@ class EdgesPainter extends CustomPainter {
         ..style = PaintingStyle.stroke;
 
       double angle;
+
+      // Calcular a distância entre os nós
+      double distance = (startBorder - endBorder).distance;
+
+      // Defina um fator que determina o quanto a curvatura deve aumentar com a distância
+      double curvatureFactor = 0.15; // Ajuste esse valor conforme necessário
+
       if (edge.curvad) {
-        final controlPoint1 = getControlPoint(startBorder, endBorder, -20); // Primeiro ponto de controle (acima)
-        final controlPoint2 = getControlPoint(startBorder, endBorder, 20);  // Segundo ponto de controle (abaixo)
+        // Aumentar o deslocamento da curva com base na distância
+        final controlPoint1 = getControlPoint(startBorder, endBorder, distance * curvatureFactor); // Primeiro ponto de controle (acima)
+        final controlPoint2 = getControlPoint(startBorder, endBorder, -distance * curvatureFactor); // Segundo ponto de controle (abaixo)
 
         final path = Path()
           ..moveTo(startBorder.dx, startBorder.dy)
