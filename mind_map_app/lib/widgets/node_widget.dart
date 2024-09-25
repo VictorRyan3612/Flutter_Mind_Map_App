@@ -22,7 +22,9 @@ class NodeWidget extends HookWidget {
 
 
     final textColor = getContrastingTextColor(node.color);
-    
+    final textController = useTextEditingController(text: node.text);
+    final focusNode = useFocusNode();
+
     return Padding(
       padding: const EdgeInsets.all(8.0),
       child: Container(
@@ -35,12 +37,21 @@ class NodeWidget extends HookWidget {
           borderRadius: node.borderRadius,
           
         ),
-        child: Center(
-          child: GestureDetector(
-            onTap: () {
-              
-            },
-          ),
+        child: ValueListenableBuilder(
+          valueListenable: nodesDataService.isEditing,
+          builder: (context, isEditingValue, child) {
+            return TextField(
+              controller: textController,
+              maxLines: null,
+              enabled: isEditingValue && nodesDataService.firstSelectedNode.value == node, // Verifica se é o nó em edição,
+              focusNode: focusNode,
+              style: TextStyle(color: textColor), // Define a cor do texto dinamicamente
+              decoration: InputDecoration(
+                border: InputBorder.none,
+                hintStyle: TextStyle(color: Colors.grey),
+              ),
+            );
+          }
         ),
       )
     );
