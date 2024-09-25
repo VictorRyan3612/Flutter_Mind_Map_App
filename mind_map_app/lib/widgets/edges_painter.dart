@@ -54,6 +54,11 @@ class EdgesPainter extends CustomPainter {
         // Calcular o ângulo da seta na linha reta
         angle = atan2(endBorder.dy - startBorder.dy, endBorder.dx - startBorder.dx);
       }
+      if (edge.arrow) {
+        drawArrowShape(canvas, endBorder, angle, paint);
+      } else {
+        
+      }
     }
   }
 
@@ -73,7 +78,31 @@ class EdgesPainter extends CustomPainter {
 
     return Offset(center.dx + dx, center.dy + dy);
   }
+  void drawArrowShape(Canvas canvas, Offset position, double angle, Paint paint) {
+    final arrowLength = 6.0; // Comprimento da seta
+    final arrowWidth = 4.0;  // Largura da seta
+    final arrowAngle = pi / 6; // Ângulo de abertura da seta
 
+    // Calcular os pontos do triângulo
+    final arrowP1 = Offset(
+      position.dx - arrowLength * cos(angle - arrowAngle),
+      position.dy - arrowLength * sin(angle - arrowAngle),
+    );
+    final arrowP2 = Offset(
+      position.dx - arrowLength * cos(angle + arrowAngle),
+      position.dy - arrowLength * sin(angle + arrowAngle),
+    );
+
+    // Desenhar o triângulo
+    final path = Path()
+      ..moveTo(position.dx, position.dy) // Ponto de origem da seta
+      ..lineTo(arrowP1.dx, arrowP1.dy) // Ponto da primeira base
+      ..lineTo(arrowP2.dx, arrowP2.dy) // Ponto da segunda base
+      ..close(); // Fecha o triângulo
+
+    // Preencher o triângulo
+    canvas.drawPath(path, paint);
+  }
   @override
   bool shouldRepaint(covariant CustomPainter oldDelegate) {
     return true;
