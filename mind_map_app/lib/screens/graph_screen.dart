@@ -19,6 +19,18 @@ class GraphScreen extends StatelessWidget {
         onTap: () {
           nodesDataService.nodes.value.add(Node(color: Colors.red));
           nodesDataService.nodes.notifyListeners();
+          Navigator.pop(context);
+        },
+      ),
+      ListTile(
+        title: Text("Criar Edge"),
+        onTap: () {
+          nodesDataService.nodes.value.add(Node(id: 0, color: Colors.red, position: Offset(50, 50)));
+          nodesDataService.nodes.value.add(Node(id: 1, color: Colors.blue, position: Offset(100, 100)));
+          nodesDataService.edges.value.add(Edge(idSource: 0, idDestination: 1, color: Colors.orange));
+          nodesDataService.nodes.notifyListeners();
+          nodesDataService.edges.notifyListeners();
+          Navigator.pop(context);
         },
       )
     ];
@@ -53,7 +65,12 @@ class GraphScreen extends StatelessWidget {
                   builder: (context, edgesValue, child) {
                     return CustomPaint(
                       size: Size.infinite,
-                      painter: EdgesPainter([]),
+                      painter: EdgesPainter(
+                        edgesValue.map((edge) {
+                          edge.color = Edge.determineEdgeColor(context, edge.color);
+                          return edge;
+                        }).toList()
+                      ),
                     );
                   },
                 ),
