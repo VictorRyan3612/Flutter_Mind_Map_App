@@ -13,6 +13,15 @@ class GraphScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     Timer? _debounce;
 
+    List<ListTile> listtiles = [
+      ListTile(
+        title: Text("Criar Node"),
+        onTap: () {
+          nodesDataService.nodes.value.add(Node(color: Colors.red));
+          nodesDataService.nodes.notifyListeners();
+        },
+      )
+    ];
     return InteractiveViewer(
       child: ValueListenableBuilder(
         valueListenable: nodesDataService.nodes,
@@ -21,6 +30,7 @@ class GraphScreen extends StatelessWidget {
           return GestureDetector(
             onTap: () {
               nodesDataService.firstSelectedNode.value = null;
+              nodesDataService.secondSelectedNode.value = null;
 
             },
             onDoubleTapDown: (details) {
@@ -28,15 +38,13 @@ class GraphScreen extends StatelessWidget {
                 if (nodesDataService.firstSelectedNode.value == null) {
 
 
-                  showContextMenu(context, positionOffset: details.localPosition);
+                  showContextMenu(context, positionOffset: details.localPosition, listTiles: listtiles);
                 }
               });
             },
             onSecondaryTapDown: (details) {
               nodesDataService.firstSelectedNode.value = null;
-              nodesValue.add(Node(color: Colors.red));
-              nodesDataService.nodes.notifyListeners();
-              showContextMenu(context, positionOffset: details.localPosition);
+              showContextMenu(context, positionOffset: details.localPosition, listTiles: listtiles);
             },
             child: Stack(
               children: [
