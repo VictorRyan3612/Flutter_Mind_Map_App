@@ -19,8 +19,8 @@ class Node {
     double? width,
     double? height,
     BorderRadiusGeometry? borderRadius,
-  })  : width = width ?? 50,
-        height = height ?? 20,
+  })  : width = width ?? _calculateSize(text, true),
+        height = height ?? _calculateSize(text, false),
         borderRadius = borderRadius ?? BorderRadius.circular(20),
         assert((width ?? 50) > 0, 'Width must be greater than zero'),
         assert((height ?? 20) > 0, 'Height must be greater than zero'),
@@ -33,6 +33,23 @@ class Node {
 
   static bool isBlackOrWhite(Color color) {
     return color == Colors.black || color == Colors.white;
+  }
+  static double _calculateSize(String text, bool isWidth) {
+    final textPainter = TextPainter(
+      text: TextSpan(
+        text: text,
+        style: TextStyle(fontSize: 16), // Tamanho da fonte desejado
+      ),
+      textDirection: TextDirection.ltr,
+    )..layout();
+
+    if (isWidth) {
+      return textPainter.width + 32; // Adiciona mais padding
+      
+    } else {
+      return textPainter.height + 32; // Adiciona mais padding
+      
+    }
   }
 
   Map<String, dynamic> toJson() {
