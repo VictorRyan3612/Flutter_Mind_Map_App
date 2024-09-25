@@ -8,6 +8,21 @@ class NodeWidget extends HookWidget {
 
   @override
   Widget build(BuildContext context) {
+    Color getContrastingTextColor(Color backgroundColor) {
+      if (backgroundColor == Colors.transparent) {
+        // Se for transparente, usa a cor baseada no tema
+        return Theme.of(context).brightness == Brightness.dark
+            ? Colors.white
+            : Colors.black;
+      }
+      // Usa a fórmula de luminosidade relativa para determinar se o fundo é claro ou escuro
+      final double luminance = backgroundColor.computeLuminance();
+      return luminance > 0.5 ? Colors.black : Colors.white;
+    }
+
+
+    final textColor = getContrastingTextColor(node.color);
+    
     return Padding(
       padding: const EdgeInsets.all(8.0),
       child: Container(
