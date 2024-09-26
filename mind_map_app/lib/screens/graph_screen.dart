@@ -2,6 +2,7 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:flutter_vicr_widgets/flutter_vicr_widgets.dart';
 import 'package:mind_map_app/data/nodes_data_service.dart';
 import 'package:mind_map_app/widgets/edges_painter.dart';
 import 'package:mind_map_app/widgets/node_widget.dart';
@@ -145,7 +146,24 @@ class GraphScreen extends HookWidget {
                                 nodesDataService.deleteNode(nodesValue[i]);
                                 Navigator.pop(context);
                               },
-                            )
+                            ),
+                            ListTile(
+                              title: Text('Mudar cor'),
+                              onTap: ()async {
+                                
+                                var color = await showDialog(context: context, builder: (context) {
+                                  return AlertDialog(
+                                    content: VicrColorSelector(),
+                                  );
+                                }); 
+                                if (color is Color) {
+                                  nodesValue[i].color = color;
+                                  nodesDataService.nodes.notifyListeners();
+                                  
+                                }
+                                Navigator.pop(context);
+                              },
+                            ),
                           ]);
                           nodesDataService.isEditing.value = false;
                           nodesDataService.firstSelectedNode.value = nodesValue[i];
