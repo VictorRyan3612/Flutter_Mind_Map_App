@@ -1,39 +1,41 @@
 import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:mind_map_app/data/nodes_data_service.dart';
-import 'package:mind_map_app/widgets/edges_painter.dart';
 import 'package:mind_map_app/widgets/node_widget.dart';
 
-class GraphScreen extends StatelessWidget {
+
+class GraphScreen extends HookWidget {
   const GraphScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
     Timer? _debounce;
 
-    List<ListTile> listtiles = [
-      ListTile(
-        title: Text("Criar Node"),
-        onTap: () {
-          nodesDataService.nodes.value.add(Node(color: Colors.red));
-          nodesDataService.nodes.notifyListeners();
-          Navigator.pop(context);
-        },
-      ),
-      ListTile(
-        title: Text("Criar Edge"),
-        onTap: () {
-          nodesDataService.nodes.value.add(Node(id: 0, color: Colors.red, position: Offset(50, 50)));
-          nodesDataService.nodes.value.add(Node(id: 1, color: Colors.blue, position: Offset(100, 100)));
-          nodesDataService.edges.value.add(Edge(idSource: 0, idDestination: 1, color: Colors.orange, curvad: true, arrow: true));
-          nodesDataService.nodes.notifyListeners();
-          nodesDataService.edges.notifyListeners();
-          Navigator.pop(context);
-        },
-      )
-    ];
+    List<ListTile> functionListTile(Offset position){
+      List<ListTile> listtiles = [
+        ListTile(
+          title: Text("Criar Node"),
+          onTap: () {
+            nodesDataService.nodes.value.add(Node(color: Colors.red, position: position));
+            nodesDataService.nodes.notifyListeners();
+            Navigator.pop(context);
+          },
+        ),
+        ListTile(
+          title: Text("Criar Edge"),
+          onTap: () {
+            nodesDataService.nodes.value.add(Node(id: 0, color: Colors.red, position: Offset(50, 50)));
+            nodesDataService.nodes.value.add(Node(id: 1, color: Colors.blue, position: Offset(100, 100)));
+            nodesDataService.edges.value.add(Edge(idSource: 0, idDestination: 1, color: Colors.orange, curvad: true, arrow: true));
+            nodesDataService.nodes.notifyListeners();
+            nodesDataService.edges.notifyListeners();
+            Navigator.pop(context);
+          },
+        )
+      ];
+      return listtiles;
+    }
     return InteractiveViewer(
       child: ValueListenableBuilder(
         valueListenable: nodesDataService.nodes,
