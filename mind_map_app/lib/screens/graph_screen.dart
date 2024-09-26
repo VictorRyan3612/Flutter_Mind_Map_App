@@ -1,4 +1,3 @@
-import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:mind_map_app/data/nodes_data_service.dart';
@@ -11,7 +10,6 @@ class GraphScreen extends HookWidget {
 
   @override
   Widget build(BuildContext context) {
-    Timer? _debounce;
 
     List<ListTile> functionListTile(Offset position){
       List<ListTile> listtiles = [
@@ -68,6 +66,7 @@ class GraphScreen extends HookWidget {
                   nodesDataService.nodes.notifyListeners();
                 },
                 onTapDown: (details) {
+                  nodesDataService.isEditing.value = false;
                   nodesDataService.firstSelectedNode.value = null;
                   nodesDataService.secondSelectedNode.value = null;
           
@@ -80,13 +79,13 @@ class GraphScreen extends HookWidget {
                   
                 },
                 onDoubleTapDown: (details) {
-                  _debounce = Timer(const Duration(milliseconds: 500), () {
-                    if (nodesDataService.firstSelectedNode.value == null) {
-                      showContextMenu(context, positionOffset: details.localPosition, listTiles: functionListTile(details.localPosition));
-                    }
-                  });
+                  if (nodesDataService.firstSelectedNode.value == null) {
+                    nodesDataService.isEditing.value = false;
+                    showContextMenu(context, positionOffset: details.localPosition, listTiles: functionListTile(details.localPosition));
+                  }
                 },
                 onSecondaryTapDown: (details) {
+                  nodesDataService.isEditing.value = false;
                   nodesDataService.firstSelectedNode.value = null;
                   showContextMenu(context, positionOffset: details.localPosition, listTiles: functionListTile(details.localPosition));
                 },
@@ -100,12 +99,6 @@ class GraphScreen extends HookWidget {
                           painter: EdgesPainter(
                             edgesValue.map((edge) {
                               // Recalcular a cor da aresta conforme o tema
-                              if (edge.color == null) {
-                                edge.color = Edge.determineEdgeColor(
-                                  context, 
-                                  nodesDataService.getFirstByType(Node, edge.idSource).color
-                                );
-                              }
                               return edge;
                             }).toList(),
                           ),
@@ -124,13 +117,17 @@ class GraphScreen extends HookWidget {
                         onDoubleTapDown: (details) {
                           nodesDataService.isEditing.value = true;
                           nodesDataService.firstSelectedNode.value = nodesValue[i];
+                          nodesDataService.secondSelectedNode.value = null;
                         },
                         onTapDown: (details) {
                           nodesDataService.firstSelectedNode.value = nodesValue[i];
-                          
+                          nodesDataService.secondSelectedNode.value = null;
                         },
                         onSecondaryTapDown: (details) {
+
+                          nodesDataService.isEditing.value = false;
                           nodesDataService.firstSelectedNode.value = nodesValue[i];
+                          nodesDataService.secondSelectedNode.value = null;
                         },
                         onPanUpdate: (details) {
                           nodesValue[i].position = Offset(
