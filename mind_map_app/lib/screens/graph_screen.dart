@@ -36,73 +36,104 @@ class GraphScreen extends HookWidget {
       ];
       return listtiles;
     }
+    // Posições usando useState
+    final chartOffset = useState(Offset(0, 0));
+    final displayedCoordinates = useState(Offset(0, 0));
+
     return InteractiveViewer(
       child: ValueListenableBuilder(
         valueListenable: nodesDataService.nodes,
         builder: (context, nodesValue, child) {
-          
-          return GestureDetector(
-            onTap: () {
-              nodesDataService.firstSelectedNode.value = null;
-              nodesDataService.secondSelectedNode.value = null;
+          return Stack(
+            children: [
+              GestureDetector(
+                onPanUpdate: (details) {
+                  chartOffset.value = Offset(
+                    chartOffset.value.dx + details.delta.dx,
+                    chartOffset.value.dy + details.delta.dy,
+                  );
 
-            },
-            onDoubleTapDown: (details) {
-              _debounce = Timer(const Duration(milliseconds: 500), () {
-                if (nodesDataService.firstSelectedNode.value == null) {
-
-
-                  showContextMenu(context, positionOffset: details.localPosition, listTiles: listtiles);
-                }
-              });
-            },
-            onSecondaryTapDown: (details) {
-              nodesDataService.firstSelectedNode.value = null;
-              showContextMenu(context, positionOffset: details.localPosition, listTiles: listtiles);
-            },
-            child: Stack(
-              children: [
-                ValueListenableBuilder(
-                  valueListenable: nodesDataService.edges,
-                  builder: (context, edgesValue, child) {
-                    return CustomPaint(
-                      size: Size.infinite,
-                      painter: EdgesPainter(
-                        edgesValue.map((edge) {
-                          edge.color = Edge.determineEdgeColor(context, edge.color);
-                          return edge;
-                        }).toList()
-                      ),
+                    // Atualiza a posição de cada nó com base no deslocamento
+                  for (var node in nodesValue) {
+                    node.position = Offset(
+                      node.position.dx + details.delta.dx,
+                      node.position.dy + details.delta.dy,
                     );
-                  },
-                ),
-                for (int i = 0; i < nodesValue.length; i++)
-                Positioned(
-                  left: nodesValue[i].position.dx,
-                  top: nodesValue[i].position.dy,
-                  child: GestureDetector(
-                    onDoubleTapDown: (details) {
-                      nodesDataService.isEditing.value = true;
-                      nodesDataService.firstSelectedNode.value = nodesValue[i];
-                    },
-                    onTapDown: (details) {
-                      nodesDataService.firstSelectedNode.value = nodesValue[i];
-                      
-                    },
-                    onSecondaryTapDown: (details) {
-                      nodesDataService.firstSelectedNode.value = nodesValue[i];
-                    },
-                    onPanUpdate: (details) {
-                      nodesValue[i].position += details.delta;
-                      nodesDataService.nodes.notifyListeners();
-                    },
-                    child: NodeWidget(
-                      node: nodesValue[i],
+                  }
+                  // Notifica os listeners após atualizar as posições dos nós
+                  nodesDataService.nodes.notifyListeners();
+                },
+                onTapDown: (details) {
+                  nodesDataService.firstSelectedNode.value = null;
+                  nodesDataService.secondSelectedNode.value = null;
+          
+                  displayedCoordinates.value = Offset(
+                    (details.localPosition.dx - chartOffset.value.dx) -
+                        (MediaQuery.of(context).size.width / 2),
+                    (details.localPosition.dy - chartOffset.value.dy) -
+                        (MediaQuery.of(context).size.height / 2),
+                  );
+                  
+                },
+                onDoubleTapDown: (details) {
+                  _debounce = Timer(const Duration(milliseconds: 500), () {
+                    if (nodesDataService.firstSelectedNode.value == null) {
+                      showContextMenu(context, positionOffset: details.localPosition, listTiles: functionListTile(details.localPosition));
+                    }
+                  });
+                },
+                onSecondaryTapDown: (details) {
+                  nodesDataService.firstSelectedNode.value = null;
+                  showContextMenu(context, positionOffset: details.localPosition, listTiles: functionListTile(details.localPosition));
+                },
+                child: Stack(
+                  children: [
+                    
+                    CustomPaint(
+                      size: Size(double.infinity, double.infinity),
+                      painter: ChartPainter(chartOffset.value),
                     ),
-                  ),
-                )
-              ],
-            ),
+                    for (int i = 0; i < nodesValue.length; i++)
+                    Positioned(
+                      left: nodesValue[i].position.dx,
+                      top: nodesValue[i].position.dy,
+                      child: GestureDetector(
+                        onDoubleTapDown: (details) {
+                          nodesDataService.isEditing.value = true;
+                          nodesDataService.firstSelectedNode.value = nodesValue[i];
+                        },
+                        onTapDown: (details) {
+                          nodesDataService.firstSelectedNode.value = nodesValue[i];
+                          
+                        },
+                        onSecondaryTapDown: (details) {
+                          nodesDataService.firstSelectedNode.value = nodesValue[i];
+                        },
+                        onPanUpdate: (details) {
+                          nodesValue[i].position = Offset(
+                            nodesValue[i].position.dx + details.delta.dx,
+                            nodesValue[i].position.dy + details.delta.dy,
+                          );
+                          nodesDataService.nodes.notifyListeners();
+                          
+                        },
+                        child: NodeWidget(
+                          node: nodesValue[i],
+                        ),
+                      ),
+                    )
+                  ],
+                ),
+              ),
+              Positioned(
+                top: 16,
+                left: 16,
+                child: Text(
+                  'Coordenadas: (${displayedCoordinates.value.dx.toStringAsFixed(1)}, ${displayedCoordinates.value.dy.toStringAsFixed(1)})',
+                  style: TextStyle(fontSize: 16, color: Colors.blue),
+                ),
+              ),
+            ],
           );
         }
       ),
