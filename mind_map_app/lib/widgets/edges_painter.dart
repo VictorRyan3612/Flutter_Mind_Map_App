@@ -70,7 +70,7 @@ class EdgesPainter extends CustomPainter {
   }
 
   Offset getBorderPosition(Node from, Node to) {
-    final center = Offset(from.position.dx + from.width /1.5, from.position.dy + from.height -1.5);
+    final center = Offset(from.position.dx + from.width /1.65, from.position.dy + from.height / 1.5);
     final direction = (to.position - from.position).direction;
 
     final dx = (from.width / 2) * cos(direction);
