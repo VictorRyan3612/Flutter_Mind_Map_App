@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:mind_map_app/data/nodes_data_service.dart';
+import 'package:mind_map_app/widgets/edges_painter.dart';
 import 'package:mind_map_app/widgets/node_widget.dart';
 
 
@@ -26,8 +27,11 @@ class GraphScreen extends HookWidget {
           title: Text("Criar Edge"),
           onTap: () {
             nodesDataService.nodes.value.add(Node(id: 0, color: Colors.red, position: Offset(50, 50)));
-            nodesDataService.nodes.value.add(Node(id: 1, color: Colors.blue, position: Offset(100, 100)));
-            nodesDataService.edges.value.add(Edge(idSource: 0, idDestination: 1, color: Colors.orange, curvad: true, arrow: true));
+            nodesDataService.nodes.value.add(Node(id: 1, color: Colors.blue, position: Offset(50, 500)));
+            nodesDataService.nodes.value.add(Node(id: 2, color: Colors.yellow, position: Offset(100, 300)));
+            nodesDataService.nodes.value.add(Node(id: 3, color: Colors.purple, position: Offset(400, 300)));
+            nodesDataService.edges.value.add(Edge(idSource: 0, idDestination: 1, color: Colors.green));
+            nodesDataService.edges.value.add(Edge(idSource: 2, idDestination: 3, color: nodesDataService.getFirstByType(Node, 2).color));
             nodesDataService.nodes.notifyListeners();
             nodesDataService.edges.notifyListeners();
             Navigator.pop(context);
@@ -88,7 +92,26 @@ class GraphScreen extends HookWidget {
                 },
                 child: Stack(
                   children: [
-                    
+                    ValueListenableBuilder(
+                      valueListenable: nodesDataService.edges,
+                      builder: (context, edgesValue, child) {
+                        return CustomPaint(
+                          size: Size.infinite,
+                          painter: EdgesPainter(
+                            edgesValue.map((edge) {
+                              // Recalcular a cor da aresta conforme o tema
+                              if (edge.color == null) {
+                                edge.color = Edge.determineEdgeColor(
+                                  context, 
+                                  nodesDataService.getFirstByType(Node, edge.idSource).color
+                                );
+                              }
+                              return edge;
+                            }).toList(),
+                          ),
+                        );
+                      }
+                    ),
                     CustomPaint(
                       size: Size(double.infinity, double.infinity),
                       painter: ChartPainter(chartOffset.value),
@@ -121,10 +144,12 @@ class GraphScreen extends HookWidget {
                           node: nodesValue[i],
                         ),
                       ),
-                    )
+                    ),
+                    
                   ],
                 ),
               ),
+              
               Positioned(
                 top: 16,
                 left: 16,
