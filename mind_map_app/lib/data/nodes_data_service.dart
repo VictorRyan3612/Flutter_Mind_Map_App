@@ -204,7 +204,14 @@ class NodesDataService {
     return  nextId;
   }
 
-
+  deleteNode(Node deletedNode){
+    edges.value.removeWhere((element) {
+      return element.idSource == deletedNode.id || element.idDestination == deletedNode.id;
+    });
+    nodes.value.remove(deletedNode);
+    nodes.notifyListeners();
+    edges.notifyListeners();
+  }
   dynamic getFirstByType(Type T, int id){
     assert(T == Node || T == Edge, 'Type must be node or edge');
     

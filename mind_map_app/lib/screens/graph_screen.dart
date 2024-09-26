@@ -137,6 +137,14 @@ class GraphScreen extends HookWidget {
                                 nodesDataService.isSelecting.value = true;
                                 Navigator.pop(context);
                               },
+                            ),
+                            ListTile(
+                              title: Text("Excluir"),
+                              onTap: () {
+                                nodesDataService.firstSelectedNode.value = null;
+                                nodesDataService.deleteNode(nodesValue[i]);
+                                Navigator.pop(context);
+                              },
                             )
                           ]);
                           nodesDataService.isEditing.value = false;
