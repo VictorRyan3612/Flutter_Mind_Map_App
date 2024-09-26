@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:mind_map_app/data/nodes_data_service.dart';
@@ -16,7 +18,8 @@ class GraphScreen extends HookWidget {
         ListTile(
           title: Text("Criar Node"),
           onTap: () {
-            nodesDataService.nodes.value.add(Node(color: Colors.red, position: position));
+            nodesDataService.nodes.value.add(Node(id:nodesDataService.getMaxIdByType(Node), position: position));
+
             nodesDataService.nodes.notifyListeners();
             Navigator.pop(context);
           },
@@ -69,7 +72,8 @@ class GraphScreen extends HookWidget {
                   nodesDataService.isEditing.value = false;
                   nodesDataService.firstSelectedNode.value = null;
                   nodesDataService.secondSelectedNode.value = null;
-          
+                  nodesDataService.isSelecting.value = false;
+
                   displayedCoordinates.value = Offset(
                     (details.localPosition.dx - chartOffset.value.dx) -
                         (MediaQuery.of(context).size.width / 2),
@@ -80,13 +84,17 @@ class GraphScreen extends HookWidget {
                 },
                 onDoubleTapDown: (details) {
                   if (nodesDataService.firstSelectedNode.value == null) {
+                    nodesDataService.isSelecting.value = false;
                     nodesDataService.isEditing.value = false;
+
                     showContextMenu(context, positionOffset: details.localPosition, listTiles: functionListTile(details.localPosition));
                   }
                 },
                 onSecondaryTapDown: (details) {
                   nodesDataService.isEditing.value = false;
                   nodesDataService.firstSelectedNode.value = null;
+                  nodesDataService.isSelecting.value = false;
+
                   showContextMenu(context, positionOffset: details.localPosition, listTiles: functionListTile(details.localPosition));
                 },
                 child: Stack(
@@ -118,13 +126,33 @@ class GraphScreen extends HookWidget {
                           nodesDataService.isEditing.value = true;
                           nodesDataService.firstSelectedNode.value = nodesValue[i];
                           nodesDataService.secondSelectedNode.value = null;
+                          nodesDataService.isSelecting.value = false;
                         },
                         onTapDown: (details) {
-                          nodesDataService.firstSelectedNode.value = nodesValue[i];
-                          nodesDataService.secondSelectedNode.value = null;
+                          if (nodesDataService.isSelecting.value == false) {
+                            nodesDataService.firstSelectedNode.value = nodesValue[i];
+                            nodesDataService.secondSelectedNode.value = null;
+                            
+                          } else {
+                            nodesDataService.secondSelectedNode.value = nodesValue[i];
+
+                            nodesDataService.edges.value.add(Edge(idSource: nodesDataService.firstSelectedNode.value!.id, idDestination: nodesDataService.secondSelectedNode.value!.id, color: nodesDataService.firstSelectedNode.value!.color));
+
+                            nodesDataService.edges.notifyListeners();
+                          }
                         },
                         onSecondaryTapDown: (details) {
+                          nodesDataService.firstSelectedNode.value = nodesValue[i];
 
+                          showContextMenu(context, positionOffset: details.globalPosition, listTiles: [
+                            ListTile(
+                              title: Text("Conectar"),
+                              onTap: () {
+                                nodesDataService.isSelecting.value = true;
+                                Navigator.pop(context);
+                              },
+                            )
+                          ]);
                           nodesDataService.isEditing.value = false;
                           nodesDataService.firstSelectedNode.value = nodesValue[i];
                           nodesDataService.secondSelectedNode.value = null;

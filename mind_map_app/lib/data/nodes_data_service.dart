@@ -175,6 +175,7 @@ class NodesDataService {
   ValueNotifier<Node?> firstSelectedNode = ValueNotifier(null);
   ValueNotifier<Node?> secondSelectedNode = ValueNotifier(null);
   ValueNotifier<bool> isEditing = ValueNotifier(false);
+  ValueNotifier<bool> isSelecting = ValueNotifier(false);
 
   // Retornar o Id mais alto possível dependendo do tipo node ou edge
   int getMaxIdByType(Type T) {
