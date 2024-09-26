@@ -181,7 +181,7 @@ class NodesDataService {
     assert(T == Node || T == Edge, 'Type must be node or edge');
 
     int nextId = 0;
-    int maxId = 0;
+    int maxId = -1;
     var listfinal = [];
 
     if (T == Node) {
@@ -199,15 +199,8 @@ class NodesDataService {
       });
       
     }
-    if (maxId == 0) {
-      nextId = maxId;
-      return  nextId;
-      } 
-    else {
-      nextId = maxId + 1;
-
-      return  nextId;
-    }
+    nextId = maxId + 1;
+    return  nextId;
   }
 
 
