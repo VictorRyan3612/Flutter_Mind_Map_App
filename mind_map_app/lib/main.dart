@@ -4,9 +4,9 @@ import 'package:mind_map_app/screens/graph_screen.dart';
 
 void main() {
   
-  VictMaterialApp().loadSettings();
+  VicrMaterialApp().loadSettings();
   runApp(
-    VictMaterialApp(
+    VicrMaterialApp(
       routes: {
         '/': (context) => MainApp(),
       }
