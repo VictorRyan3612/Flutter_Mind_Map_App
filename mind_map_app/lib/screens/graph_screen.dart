@@ -24,20 +24,6 @@ class GraphScreen extends HookWidget {
             Navigator.pop(context);
           },
         ),
-        ListTile(
-          title: Text("Criar Edge"),
-          onTap: () {
-            nodesDataService.nodes.value.add(Node(id: 0, color: Colors.red, position: Offset(50, 50)));
-            nodesDataService.nodes.value.add(Node(id: 1, color: Colors.blue, position: Offset(50, 500)));
-            nodesDataService.nodes.value.add(Node(id: 2, color: Colors.yellow, position: Offset(100, 300)));
-            nodesDataService.nodes.value.add(Node(id: 3, color: Colors.purple, position: Offset(400, 300)));
-            nodesDataService.edges.value.add(Edge(idSource: 0, idDestination: 1, color: Colors.green));
-            nodesDataService.edges.value.add(Edge(idSource: 2, idDestination: 3, color: nodesDataService.getFirstByType(Node, 2).color));
-            nodesDataService.nodes.notifyListeners();
-            nodesDataService.edges.notifyListeners();
-            Navigator.pop(context);
-          },
-        )
       ];
       return listtiles;
     }
