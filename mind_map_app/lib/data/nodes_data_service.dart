@@ -200,11 +200,36 @@ class NodesDataService {
   ValueNotifier<bool> isSelecting = ValueNotifier(false);
 
   // Retornar o Id mais alto possível dependendo do tipo node ou edge
+
   Future<Directory> mapsFolder()async {
     Directory directory = await getApplicationSupportDirectory();
     Directory directoryMindMaps = Directory('${directory.path}\\mindMaps');
     directoryMindMaps.createSync();
     return directoryMindMaps;
+  }
+
+  loadMindMaps() async{
+    Directory folder = await mapsFolder();
+    var arquivos = folder.listSync();
+
+    arquivos.forEach((entity) async {
+      // print(entity.path);
+      File file = File('${entity.path}');
+      if (file.existsSync()){
+        String content = await file.readAsString();
+        if (content != '') {
+          Map<String, dynamic> jsonList = json.decode(content);
+          // print(jsonList);
+          MindMap mindMap = MindMap(
+            name: jsonList['name'],
+            nodes: jsonList['nodes'],
+            edges: jsonList['edges']
+          );
+          listMindMap.add(mindMap);
+          // print(listMindMap);
+        }
+      }
+    });
   }
 
   saveMindMap(MindMap mindMap) async {
