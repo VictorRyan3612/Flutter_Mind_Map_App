@@ -1,4 +1,8 @@
+import 'dart:convert';
+import 'dart:io';
+
 import 'package:flutter/material.dart';
+import 'package:path_provider/path_provider.dart';
 
 
 
@@ -196,6 +200,21 @@ class NodesDataService {
   ValueNotifier<bool> isSelecting = ValueNotifier(false);
 
   // Retornar o Id mais alto possível dependendo do tipo node ou edge
+  Future<Directory> mapsFolder()async {
+    Directory directory = await getApplicationSupportDirectory();
+    Directory directoryMindMaps = Directory('${directory.path}\\mindMaps');
+    directoryMindMaps.createSync();
+    return directoryMindMaps;
+  }
+
+  saveMindMap(MindMap mindMap) async {
+    var folder = await mapsFolder();
+    File file = File('${folder.path}/${mindMap.name}.dat');
+    String content = json.encode(mindMap.toJson());
+    file.writeAsString(content);
+    file.createSync();
+  }
+
   int getMaxIdByType(Type T) {
     assert(T == Node || T == Edge, 'Type must be node or edge');
 
