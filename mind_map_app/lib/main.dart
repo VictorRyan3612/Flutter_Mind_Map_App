@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_vicr_widgets/flutter_vicr_widgets.dart';
+import 'package:mind_map_app/data/nodes_data_service.dart';
 import 'package:mind_map_app/screens/graph_screen.dart';
 
 void main() {
   
   VicrMaterialApp().loadSettings();
+  nodesDataService.loadMindMaps();
   runApp(
     VicrMaterialApp(
       routes: {
@@ -22,6 +24,14 @@ class MainApp extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(actions: [
+        IconButton(
+          onPressed: (){
+            if(nodesDataService.mindMap.value != null){
+              nodesDataService.saveMindMap(nodesDataService.mindMap.value!);
+            }
+          }, 
+          icon: Icon(Icons.add)
+        ),
         IconButton(
           icon: Icon(Icons.settings),
           onPressed: () => Navigator.pushNamed(context, '/configs'),
