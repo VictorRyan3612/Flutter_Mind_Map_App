@@ -168,8 +168,26 @@ void showContextMenu(BuildContext context,
     );
   }   
 }
+class MindMap{
+  String name; 
+  List<Node>? nodes = [];
+  List<Edge>? edges = [];
+
+  MindMap({required this.name, this.nodes, this.edges});
+
+  Map<String, dynamic> toJson(){
+    return {
+      'name': name,
+      'nodes': nodes,
+      'edges': edges
+    };
+  }
+}
 
 class NodesDataService {
+  ValueNotifier<MindMap?> mindMap= ValueNotifier(null);
+  List<MindMap> listMindMap = []; 
+
   ValueNotifier<List<Node>> nodes = ValueNotifier([]);
   ValueNotifier<List<Edge>> edges = ValueNotifier([]);
   ValueNotifier<Node?> firstSelectedNode = ValueNotifier(null);
