@@ -2,8 +2,8 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
-import 'package:flutter_vicr_widgets/flutter_vicr_widgets.dart';
 import 'package:mind_map_app/data/nodes_data_service.dart';
+import 'package:mind_map_app/utils/functions_list_tiles.dart';
 import 'package:mind_map_app/widgets/edges_painter.dart';
 import 'package:mind_map_app/widgets/node_widget.dart';
 
@@ -13,57 +13,7 @@ class GraphScreen extends HookWidget {
 
   @override
   Widget build(BuildContext context) {
-    List<ListTile> functionListTileNode(Offset position){
-      var listtiles = [
-        ListTile(
-          title: Text("Conectar"),
-          onTap: () {
-            nodesDataService.isSelecting.value = true;
-            Navigator.pop(context);
-          },
-        ),
-        ListTile(
-          title: Text("Excluir"),
-          onTap: () {
-            nodesDataService.firstSelectedNode.value = null;
-            nodesDataService.deleteNode(nodesDataService.firstSelectedNode.value!);
-            Navigator.pop(context);
-          },
-        ),
-        ListTile(
-          title: Text('Mudar cor'),
-          onTap: ()async {
-            
-            var color = await showDialog(context: context, builder: (context) {
-              return AlertDialog(
-                content: VicrColorSelector(),
-              );
-            }); 
-            if (color is Color) {
-              nodesDataService.firstSelectedNode.value!.color = color;
-              nodesDataService.nodes.notifyListeners();
-              
-            }
-            Navigator.pop(context);
-          },
-        ),
-      ];
-      return listtiles;
-    }
-    List<ListTile> functionListTile(Offset position){
-      List<ListTile> listtiles = [
-        ListTile(
-          title: Text("Criar Node"),
-          onTap: () {
-            nodesDataService.nodes.value.add(Node(id:nodesDataService.getMaxIdByType(Node), position: position));
-
-            nodesDataService.nodes.notifyListeners();
-            Navigator.pop(context);
-          },
-        ),
-      ];
-      return listtiles;
-    }
+    
     // Posições usando useState
     final chartOffset = useState(Offset(0, 0));
     final displayedCoordinates = useState(Offset(0, 0));
@@ -110,7 +60,7 @@ class GraphScreen extends HookWidget {
                     nodesDataService.isSelecting.value = false;
                     nodesDataService.isEditing.value = false;
 
-                    showContextMenu(context, positionOffset: details.localPosition, listTiles: functionListTile(details.localPosition));
+                    showContextMenu(context, positionOffset: details.localPosition, listTiles: functionListTileGraph(context, details.localPosition));
                   }
                 },
                 onSecondaryTapDown: (details) {
@@ -118,7 +68,7 @@ class GraphScreen extends HookWidget {
                   nodesDataService.firstSelectedNode.value = null;
                   nodesDataService.isSelecting.value = false;
 
-                  showContextMenu(context, positionOffset: details.localPosition, listTiles: functionListTile(details.localPosition));
+                  showContextMenu(context, positionOffset: details.localPosition, listTiles: functionListTileGraph(context, details.localPosition));
                 },
                 child: Stack(
                   children: [
@@ -167,7 +117,7 @@ class GraphScreen extends HookWidget {
                         onSecondaryTapDown: (details) {
                           nodesDataService.firstSelectedNode.value = nodesValue[i];
 
-                          showContextMenu(context, positionOffset: details.globalPosition, listTiles: functionListTileNode(details.localPosition));
+                          showContextMenu(context, positionOffset: details.globalPosition, listTiles: functionListTileNode(context, details.localPosition));
                           
                           nodesDataService.isEditing.value = false;
                           nodesDataService.firstSelectedNode.value = nodesValue[i];
