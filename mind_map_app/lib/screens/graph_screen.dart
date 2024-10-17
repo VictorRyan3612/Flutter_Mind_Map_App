@@ -13,7 +13,43 @@ class GraphScreen extends HookWidget {
 
   @override
   Widget build(BuildContext context) {
-
+    List<ListTile> functionListTileNode(Offset position){
+      var listtiles = [
+        ListTile(
+          title: Text("Conectar"),
+          onTap: () {
+            nodesDataService.isSelecting.value = true;
+            Navigator.pop(context);
+          },
+        ),
+        ListTile(
+          title: Text("Excluir"),
+          onTap: () {
+            nodesDataService.firstSelectedNode.value = null;
+            nodesDataService.deleteNode(nodesDataService.firstSelectedNode.value!);
+            Navigator.pop(context);
+          },
+        ),
+        ListTile(
+          title: Text('Mudar cor'),
+          onTap: ()async {
+            
+            var color = await showDialog(context: context, builder: (context) {
+              return AlertDialog(
+                content: VicrColorSelector(),
+              );
+            }); 
+            if (color is Color) {
+              nodesDataService.firstSelectedNode.value!.color = color;
+              nodesDataService.nodes.notifyListeners();
+              
+            }
+            Navigator.pop(context);
+          },
+        ),
+      ];
+      return listtiles;
+    }
     List<ListTile> functionListTile(Offset position){
       List<ListTile> listtiles = [
         ListTile(
@@ -131,40 +167,8 @@ class GraphScreen extends HookWidget {
                         onSecondaryTapDown: (details) {
                           nodesDataService.firstSelectedNode.value = nodesValue[i];
 
-                          showContextMenu(context, positionOffset: details.globalPosition, listTiles: [
-                            ListTile(
-                              title: Text("Conectar"),
-                              onTap: () {
-                                nodesDataService.isSelecting.value = true;
-                                Navigator.pop(context);
-                              },
-                            ),
-                            ListTile(
-                              title: Text("Excluir"),
-                              onTap: () {
-                                nodesDataService.firstSelectedNode.value = null;
-                                nodesDataService.deleteNode(nodesValue[i]);
-                                Navigator.pop(context);
-                              },
-                            ),
-                            ListTile(
-                              title: Text('Mudar cor'),
-                              onTap: ()async {
-                                
-                                var color = await showDialog(context: context, builder: (context) {
-                                  return AlertDialog(
-                                    content: VicrColorSelector(),
-                                  );
-                                }); 
-                                if (color is Color) {
-                                  nodesValue[i].color = color;
-                                  nodesDataService.nodes.notifyListeners();
-                                  
-                                }
-                                Navigator.pop(context);
-                              },
-                            ),
-                          ]);
+                          showContextMenu(context, positionOffset: details.globalPosition, listTiles: functionListTileNode(details.localPosition));
+                          
                           nodesDataService.isEditing.value = false;
                           nodesDataService.firstSelectedNode.value = nodesValue[i];
                           nodesDataService.secondSelectedNode.value = null;
