@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
@@ -57,18 +58,23 @@ class GraphScreen extends HookWidget {
                   // Notifica os listeners após atualizar as posições dos nós
                   nodesDataService.nodes.notifyListeners();
                 },
+                onPanEnd: (details) {
+                  print('\n');
+                  Timer(const Duration(milliseconds: 500), () {
+                    for (var element in nodesValue) {
+                      print("${element.id}: ${element.position}");
+                    }
+                  });
+                },
                 onTapDown: (details) {
                   nodesDataService.isEditing.value = false;
                   nodesDataService.firstSelectedNode.value = null;
                   nodesDataService.secondSelectedNode.value = null;
                   nodesDataService.isSelecting.value = false;
 
-                  displayedCoordinates.value = Offset(
-                    (details.localPosition.dx - chartOffset.value.dx) -
-                        (MediaQuery.of(context).size.width / 2),
-                    (details.localPosition.dy - chartOffset.value.dy) -
-                        (MediaQuery.of(context).size.height / 2),
-                  );
+                  displayedCoordinates.value = localToGraphCoordinates(details.localPosition);
+                  print('Local: ${details.localPosition}');
+                  print('Display: ${displayedCoordinates.value}');
                   
                 },
                 onDoubleTapDown: (details) {
