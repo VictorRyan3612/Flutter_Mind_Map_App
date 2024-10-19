@@ -114,6 +114,9 @@ class GraphScreen extends HookWidget {
 
                             nodesDataService.edges.notifyListeners();
                           }
+                          nodesDataService.isSelecting.value = false;
+                          nodesDataService.secondSelectedNode.value = null;
+                          nodesDataService.firstSelectedNode.value = null;
                         },
                         onSecondaryTapDown: (details) {
                           nodesDataService.firstSelectedNode.value = nodesValue[i];
