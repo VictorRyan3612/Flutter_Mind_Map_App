@@ -19,7 +19,8 @@ class GraphScreen extends HookWidget {
     // Posições usando useState
     final chartOffset = useState(Offset(0, 0));
     final displayedCoordinates = useState(Offset(0, 0));
-    
+    var startPosition = useState(Offset(0,0));
+
      // Função para converter as coordenadas da tela em coordenadas relativas ao gráfico
     Offset localToGraphCoordinates(Offset localPosition) {
       return Offset(
@@ -49,12 +50,7 @@ class GraphScreen extends HookWidget {
                   );
 
                     // Atualiza a posição de cada nó com base no deslocamento
-                  for (var node in nodesValue) {
-                    node.position = Offset(
-                      node.position.dx + details.delta.dx,
-                      node.position.dy + details.delta.dy,
-                    );
-                  }
+                  
                   // Notifica os listeners após atualizar as posições dos nós
                   nodesDataService.nodes.notifyListeners();
                 },
@@ -82,7 +78,7 @@ class GraphScreen extends HookWidget {
                     nodesDataService.isSelecting.value = false;
                     nodesDataService.isEditing.value = false;
 
-                    showContextMenu(context, positionOffset: details.localPosition, listTiles: functionListTileGraph(context, details.localPosition));
+                    showContextMenu(context, positionOffset: details.localPosition, listTiles: functionListTileGraph(context, localToGraphCoordinates(details.localPosition)));
                   }
                 },
                 onSecondaryTapDown: (details) {
@@ -90,7 +86,7 @@ class GraphScreen extends HookWidget {
                   nodesDataService.firstSelectedNode.value = null;
                   nodesDataService.isSelecting.value = false;
 
-                  showContextMenu(context, positionOffset: details.localPosition, listTiles: functionListTileGraph(context, details.localPosition));
+                  showContextMenu(context, positionOffset: details.localPosition, listTiles: functionListTileGraph(context, localToGraphCoordinates(details.localPosition)));
                 },
                 child: Stack(
                   children: [
@@ -114,8 +110,8 @@ class GraphScreen extends HookWidget {
                     ),
                     for (int i = 0; i < nodesValue.length; i++)
                     Positioned(
-                      left: nodesValue[i].position.dx,
-                      top: nodesValue[i].position.dy,
+                      left: graphToLocalCoordinates(nodesValue[i].position).dx,
+                        top: graphToLocalCoordinates(nodesValue[i].position).dy,
                       child: GestureDetector(
                         onDoubleTapDown: (details) {
                           nodesDataService.isEditing.value = true;
@@ -148,10 +144,13 @@ class GraphScreen extends HookWidget {
                           nodesDataService.firstSelectedNode.value = nodesValue[i];
                           nodesDataService.secondSelectedNode.value = null;
                         },
+                        onPanStart: (details) {
+                            startPosition.value = nodesValue[i].position;
+                          },
                         onPanUpdate: (details) {
                           nodesValue[i].position = Offset(
-                            nodesValue[i].position.dx + details.delta.dx,
-                            nodesValue[i].position.dy + details.delta.dy,
+                            startPosition.value.dx + details.localPosition.dx,
+                            startPosition.value.dy + details.localPosition.dy,
                           );
                           nodesDataService.nodes.notifyListeners();
                           
