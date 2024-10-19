@@ -18,7 +18,22 @@ class GraphScreen extends HookWidget {
     // Posições usando useState
     final chartOffset = useState(Offset(0, 0));
     final displayedCoordinates = useState(Offset(0, 0));
+    
+     // Função para converter as coordenadas da tela em coordenadas relativas ao gráfico
+    Offset localToGraphCoordinates(Offset localPosition) {
+      return Offset(
+        localPosition.dx - chartOffset.value.dx - (MediaQuery.of(context).size.width / 2),
+        localPosition.dy - chartOffset.value.dy - (MediaQuery.of(context).size.height / 2),
+      );
+    }
 
+    // Função para converter as coordenadas do gráfico para a tela
+    Offset graphToLocalCoordinates(Offset graphPosition) {
+      return Offset(
+        graphPosition.dx + chartOffset.value.dx + (MediaQuery.of(context).size.width / 2),
+        graphPosition.dy + chartOffset.value.dy + (MediaQuery.of(context).size.height / 2),
+      );
+    }
     return InteractiveViewer(
       child: ValueListenableBuilder(
         valueListenable: nodesDataService.nodes,
