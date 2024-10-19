@@ -5,20 +5,23 @@ import 'package:mind_map_app/data/nodes_data_service.dart';
 
 class EdgesPainter extends CustomPainter {
   final List<Edge> edges;
+  final Offset Function(Offset) graphToLocalCoordinates; // Função de conversão de coordenadas
 
-  EdgesPainter(this.edges);
+  EdgesPainter(this.edges, this.graphToLocalCoordinates);
 
-  
   @override
   void paint(Canvas canvas, Size size) {
     for (Edge edge in edges){
       final Node sourceNode = nodesDataService.getFirstByType(Node, edge.idSource);
       final Node destinationNode = nodesDataService.getFirstByType(Node, edge.idDestination);
 
+      // Convertendo as posições dos nós do gráfico para as coordenadas da tela
+      final sourcePosition = graphToLocalCoordinates(sourceNode.position);
+      final destinationPosition = graphToLocalCoordinates(destinationNode.position);
 
-      // Pega as bordas dos nós para desenhar a linha
-      final startBorder = getBorderPosition(sourceNode, destinationNode);
-      final endBorder = getBorderPosition(destinationNode, sourceNode);
+      // Pega as bordas dos nós para desenhar a linha, ajustando para as coordenadas da tela
+      final startBorder = getBorderPosition(sourcePosition, destinationPosition, sourceNode.width, sourceNode.height);
+      final endBorder = getBorderPosition(destinationPosition, sourcePosition, destinationNode.width, destinationNode.height);
 
       final paint = Paint()
         ..color = edge.color
@@ -69,15 +72,16 @@ class EdgesPainter extends CustomPainter {
     );
   }
 
-  Offset getBorderPosition(Node from, Node to) {
-    final center = Offset(from.position.dx + from.width /1.65, from.position.dy + from.height / 1.5);
-    final direction = (to.position - from.position).direction;
+  Offset getBorderPosition(Offset from, Offset to, double width, double height) {
+    final center = Offset(from.dx + width / 1.65, from.dy + height / 1.5);
+    final direction = (to - from).direction;
 
-    final dx = (from.width / 2) * cos(direction);
-    final dy = (from.height / 2) * sin(direction);
+    final dx = (width / 2) * cos(direction);
+    final dy = (height / 2) * sin(direction);
 
     return Offset(center.dx + dx, center.dy + dy);
   }
+
   void drawArrowShape(Canvas canvas, Offset position, double angle, Paint paint) {
     final arrowLength = 6.0; // Comprimento da seta
     final arrowWidth = 4.0;  // Largura da seta

@@ -96,10 +96,10 @@ class GraphScreen extends HookWidget {
                         return CustomPaint(
                           size: Size.infinite,
                           painter: EdgesPainter(
-                            edgesValue.map((edge) {
-                              // Recalcular a cor da aresta conforme o tema
-                              return edge;
-                            }).toList(),
+                            edgesValue.toList(),
+                            graphToLocalCoordinates, // Passamos a função de conversão para o painter
+
+
                           ),
                         );
                       }
