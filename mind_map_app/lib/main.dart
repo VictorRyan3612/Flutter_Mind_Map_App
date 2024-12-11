@@ -5,13 +5,17 @@ import 'package:mind_map_app/screens/graph_screen.dart';
 
 void main() {
   
-  VicrMaterialApp().loadSettings();
+  VicrMaterialApp.staticLoadSettings();
   nodesDataService.loadMindMaps();
   runApp(
     VicrMaterialApp(
-      routes: {
-        '/': (context) => MainApp(),
-      }
+      configWidget: ConfigWidgets(),
+      materialApp: MaterialApp(
+        debugShowCheckedModeBanner: false,
+        routes: {
+          '/': (context) => MainApp(),
+        }
+      ),
     )
   );
 }
