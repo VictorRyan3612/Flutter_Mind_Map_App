@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:mind_map_app/data/node.dart';
 import 'package:mind_map_app/data/nodes_data_service.dart';
 
 class NodeWidget extends HookWidget {

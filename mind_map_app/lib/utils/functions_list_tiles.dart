@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_vicr_widgets/flutter_vicr_widgets.dart';
+import 'package:mind_map_app/data/node.dart';
 import 'package:mind_map_app/data/nodes_data_service.dart';
 
 List<ListTile> functionListTileNode(BuildContext context, Offset position){

@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:mind_map_app/data/node.dart';
 import 'package:mind_map_app/data/nodes_data_service.dart';
 
 class EdgesPainter extends CustomPainter {
