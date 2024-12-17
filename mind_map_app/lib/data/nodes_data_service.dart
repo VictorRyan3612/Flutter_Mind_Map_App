@@ -214,11 +214,9 @@ class NodesDataService {
   saveMindMap(MindMap mindMap) async {
     var folder = await mapsFolder();
     File file = File('${folder.path}/${mindMap.name}.dat');
-    if (!file.existsSync()) {
-      String content = json.encode(mindMap.toJson());
-      file.writeAsString(content);
-      file.createSync();
-    }
+    String content = json.encode(mindMap.toJson());
+    file.writeAsString(content);
+    file.createSync();
   }
 
   int getMaxIdByType(Type T) {
