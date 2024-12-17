@@ -169,8 +169,8 @@ class MindMap {
 
 
 class NodesDataService {
-  ValueNotifier<MindMap?> mindMap= ValueNotifier(null);
-  ValueNotifier<List<MindMap>> listMindMap = ValueNotifier([]); 
+  ValueNotifier<MindMap?> mindMap = ValueNotifier(null);
+  ValueNotifier<List<MindMap>> listMindMap = ValueNotifier([]);
 
   ValueNotifier<List<Node>> nodes = ValueNotifier([]);
   ValueNotifier<List<Edge>> edges = ValueNotifier([]);
@@ -180,15 +180,14 @@ class NodesDataService {
   ValueNotifier<bool> isSelecting = ValueNotifier(false);
 
   // Retornar o Id mais alto possível dependendo do tipo node ou edge
-
-  Future<Directory> mapsFolder()async {
+  Future<Directory> mapsFolder() async {
     Directory directory = await getApplicationSupportDirectory();
     Directory directoryMindMaps = Directory('${directory.path}\\mindMaps');
     directoryMindMaps.createSync();
     return directoryMindMaps;
   }
 
-  loadMindMaps() async{
+  loadMindMaps() async {
     Directory folder = await mapsFolder();
     var arquivos = folder.listSync();
     List<MindMap> lista = [];
@@ -197,32 +196,27 @@ class NodesDataService {
       File file = File('${entity.path}');
       if (file.existsSync()) {
         String content = await file.readAsString();
-        if (content != '') {
+        if (content.isNotEmpty) {
           Map<String, dynamic> jsonList = json.decode(content);
-          print(jsonList);
-          
           lista.add(
             MindMap.fromjson(
               jsonList,
               weight: await file.length(),
               createdAt: file.statSync().changed,
               modifiedAt: file.statSync().modified,
-            )
+            ),
           );
-          print(lista);
         }
       }
     }
 
-    listMindMap.value = lista; // Atribuição fora do loop
-    print(listMindMap.value); // Agora com dados corretos
+    listMindMap.value = lista;
   }
-
 
   saveMindMap(MindMap mindMap) async {
     var folder = await mapsFolder();
     File file = File('${folder.path}/${mindMap.name}.dat');
-    if(!file.existsSync()){
+    if (!file.existsSync()) {
       String content = json.encode(mindMap.toJson());
       file.writeAsString(content);
       file.createSync();
@@ -234,43 +228,93 @@ class NodesDataService {
 
     int nextId = 0;
     int maxId = -1;
-    var listfinal = [];
+    List<dynamic> listfinal = [];
 
     if (T == Node) {
-      listfinal = nodes.value;
+      listfinal = mindMap.value?.nodes ?? [];
     }
     if (T == Edge) {
-      listfinal = edges.value;
+      listfinal = mindMap.value?.edges ?? [];
     }
 
     if (listfinal.isNotEmpty) {
-      listfinal.forEach((n) {
-        if (n.id > maxId) {
-          maxId = n.id;
+      for (var item in listfinal) {
+        if (item.id > maxId) {
+          maxId = item.id;
         }
-      });
-      
+      }
     }
     nextId = maxId + 1;
-    return  nextId;
+    return nextId;
   }
 
-  deleteNode(Node deletedNode){
-    edges.value.removeWhere((element) {
-      return element.idSource == deletedNode.id || element.idDestination == deletedNode.id;
-    });
-    nodes.value.remove(deletedNode);
-    nodes.notifyListeners();
-    edges.notifyListeners();
+  deleteNode(Node deletedNode) {
+    final mindMapValue = mindMap.value;
+    if (mindMapValue != null) {
+      mindMapValue.edges?.removeWhere((element) {
+        return element.idSource == deletedNode.id || element.idDestination == deletedNode.id;
+      });
+      mindMapValue.nodes?.remove(deletedNode);
+      mindMap.value = mindMapValue; // Atualiza o mindMap para notificar os listeners
+      mindMap.notifyListeners();
+    }
   }
-  dynamic getFirstByType(Type T, int id){
+
+  dynamic getFirstByType(Type T, int id) {
     assert(T == Node || T == Edge, 'Type must be node or edge');
-    
+
     if (T == Node) {
-      return nodes.value.firstWhere((element) => element.id == id);
-    } 
-    else if(T == Edge){
-      return edges.value.firstWhere((element) => element.id == id);
+      return mindMap.value?.nodes?.firstWhere((element) => element.id == id);
+    } else if (T == Edge) {
+      return mindMap.value?.edges?.firstWhere((element) => element.id == id);
+    }
+    return null;
+  }
+
+  // Método para adicionar um nó
+  addNode(Node node) {
+    final mindMapValue = mindMap.value;
+    if (mindMapValue != null) {
+      mindMapValue.nodes?.add(node);
+      mindMap.value = mindMapValue; // Atualiza o mindMap
+      mindMap.notifyListeners();
+
+    }
+  }
+
+  // Método para adicionar uma aresta
+  addEdge(Edge edge) {
+    final mindMapValue = mindMap.value;
+    if (mindMapValue != null) {
+      mindMapValue.edges?.add(edge);
+      mindMap.value = mindMapValue; // Atualiza o mindMap
+      mindMap.notifyListeners();
+    }
+  }
+
+  // Método para atualizar um nó
+  updateNode(Node node) {
+    final mindMapValue = mindMap.value;
+    if (mindMapValue != null) {
+      final index = mindMapValue.nodes?.indexWhere((n) => n.id == node.id);
+      if (index != null && index >= 0) {
+        mindMapValue.nodes?[index] = node;
+        mindMap.value = mindMapValue; // Atualiza o mindMap
+        mindMap.notifyListeners();
+      }
+    }
+  }
+
+  // Método para atualizar uma aresta
+  updateEdge(Edge edge) {
+    final mindMapValue = mindMap.value;
+    if (mindMapValue != null) {
+      final index = mindMapValue.edges?.indexWhere((e) => e.id == edge.id);
+      if (index != null && index >= 0) {
+        mindMapValue.edges?[index] = edge;
+        mindMap.value = mindMapValue; // Atualiza o mindMap
+        mindMap.notifyListeners();
+      }
     }
   }
 }
