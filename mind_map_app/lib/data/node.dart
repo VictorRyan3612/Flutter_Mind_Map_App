@@ -7,7 +7,7 @@ class Node {
   Offset position;
   double width;
   double height;
-  BorderRadiusGeometry borderRadius;
+  double borderRadiusValue; // Armazenando o valor do raio diretamente
 
   Node({
     this.id = 0,
@@ -16,18 +16,17 @@ class Node {
     this.position = Offset.zero,
     double? width,
     double? height,
-    BorderRadiusGeometry? borderRadius,
+    double borderRadiusValue = 20, // Valor default para o raio
   })  : width = width ?? _calculateSize(text, true),
         height = height ?? _calculateSize(text, false),
-        borderRadius = borderRadius ?? BorderRadius.circular(20),
+        borderRadiusValue = borderRadiusValue,
         assert((width ?? 50) > 0, 'Width must be greater than zero'),
         assert((height ?? 20) > 0, 'Height must be greater than zero'),
-        assert(id >= 0, 'Id must be greater than zero') 
-    {
-      if (isBlackOrWhite(color)) {
-        print("Warning: Using black or white color for Nodes is not recommended because background themes.");
-      }
+        assert(id >= 0, 'Id must be greater than zero') {
+    if (isBlackOrWhite(color)) {
+      print("Warning: Using black or white color for Nodes is not recommended because background themes.");
     }
+  }
 
   static bool isBlackOrWhite(Color color) {
     return color == Colors.black || color == Colors.white;
@@ -54,15 +53,29 @@ class Node {
     return {
       'id': id,
       'text': text,
-      'color': color,
-      'position': {'dx': position.dx, 'dy': position.dy},
+      'color': color.value,  // Serialize Color to int (color value)
+      'position': {'dx': position.dx, 'dy': position.dy}, // Serialize position
       'width': width,
       'height': height,
-      'borderRadius': (borderRadius as BorderRadius).toString(),
+      'borderRadius': borderRadiusValue, // Apenas o valor do raio
     };
   }
 
-  // Converte a instância para uma String legível
+  // Converte de volta para um BorderRadius circular com o valor armazenado
+  BorderRadiusGeometry get borderRadius => BorderRadius.circular(borderRadiusValue);
+
+  static Node fromJson(Map<String, dynamic> json) {
+    return Node(
+      id: json['id'],
+      color: Color(json['color']),  // Deserialize Color from int
+      height: json['height'],
+      width: json['width'],
+      text: json['text'],
+      position: Offset(json['position']['dx'], json['position']['dy']),
+      borderRadiusValue: json['borderRadius'], // Apenas o valor do raio
+    );
+  }
+
   @override
   String toString() {
     return 'Node(id: $id, text: $text, color: $color, position: $position, width: $width, height: $height, borderRadius: $borderRadius)';
