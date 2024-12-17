@@ -15,7 +15,7 @@ void main() {
         debugShowCheckedModeBanner: false,
         routes: {
           '/': (context) => MindMapListScreen(),
-          '/map': (context) => GraphScreen()
+          '/graphScreen': (context) => GraphScreen()
         }
       ),
     )

@@ -8,66 +8,73 @@ class MindMapListScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: MyAppBar(title: 'Lista de mapas', modeMindMap: false,),
+      appBar: MyAppBar(title: 'Lista de mapas', modeMindMap: false),
       body: ValueListenableBuilder<List<MindMap>>(
-      valueListenable: nodesDataService.listMindMap,
-      builder: (context, listMindMap, _) {
-        return Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: Wrap(
-            spacing: 8, // Espaçamento horizontal
-            runSpacing: 8, // Espaçamento vertical
-            children: listMindMap.map((mindMap) {
-              return Container(
-                padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  color: Colors.grey[200], // Cor neutra
-                  borderRadius: BorderRadius.circular(8),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black26,
-                      blurRadius: 4,
-                      offset: Offset(2, 2),
-                    )
-                  ],
-                ),
-                child: IntrinsicWidth( // Ajusta a largura conforme o conteúdo
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        mindMap.name,
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold, 
-                          fontSize: 14, 
-                          color: Colors.grey[600]
+        valueListenable: nodesDataService.listMindMap,
+        builder: (context, listMindMap, _) {
+          return Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Wrap(
+              spacing: 8, // Espaçamento horizontal
+              runSpacing: 8, // Espaçamento vertical
+              children: listMindMap.map((mindMap) {
+                return InkWell(
+                  onTap: () {
+                    // Definir o mapa clicado
+                    nodesDataService.mindMap.value = mindMap;
+                    // Navegar para a tela do mapa ou qualquer outra ação desejada
+                    Navigator.pushNamed(context, '/graphScreen');
+                  },
+                  child: Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: Colors.grey[200], // Cor neutra
+                      borderRadius: BorderRadius.circular(8),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black26,
+                          blurRadius: 4,
+                          offset: Offset(2, 2),
                         ),
+                      ],
+                    ),
+                    child: IntrinsicWidth( // Ajusta a largura conforme o conteúdo
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            mindMap.name,
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 14,
+                              color: Colors.grey[600],
+                            ),
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            'Criado: ${_formatDate(mindMap.createdAt)}',
+                            style: TextStyle(fontSize: 12, color: Colors.grey[600]),
+                          ),
+                          Text(
+                            'Modificado: ${_formatDate(mindMap.modifiedAt)}',
+                            style: TextStyle(fontSize: 12, color: Colors.grey[600]),
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            'Peso: ${mindMap.weight} bytes',
+                            style: TextStyle(fontSize: 12, color: Colors.grey[800]),
+                          ),
+                        ],
                       ),
-                      const SizedBox(height: 4),
-                      Text(
-                        'Criado: ${_formatDate(mindMap.createdAt)}',
-                        style: TextStyle(fontSize: 12, color: Colors.grey[600]),
-                      ),
-                      Text(
-                        'Modificado: ${_formatDate(mindMap.modifiedAt)}',
-                        style:
-                            TextStyle(fontSize: 12, color: Colors.grey[600]),
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        'Peso: ${mindMap.weight} bytes',
-                        style:
-                            TextStyle(fontSize: 12, color: Colors.grey[800]),
-                      ),
-                    ],
+                    ),
                   ),
-                ),
-              );
-            }).toList(),
-          ),
-        );
-      },
-    ));
+                );
+              }).toList(),
+            ),
+          );
+        },
+      ),
+    );
   }
 
   String _formatDate(DateTime date) {
