@@ -170,7 +170,7 @@ class MindMap {
 
 class NodesDataService {
   ValueNotifier<MindMap?> mindMap= ValueNotifier(null);
-  List<MindMap> listMindMap = []; 
+  ValueNotifier<List<MindMap>> listMindMap = ValueNotifier([]); 
 
   ValueNotifier<List<Node>> nodes = ValueNotifier([]);
   ValueNotifier<List<Edge>> edges = ValueNotifier([]);
@@ -191,33 +191,42 @@ class NodesDataService {
   loadMindMaps() async{
     Directory folder = await mapsFolder();
     var arquivos = folder.listSync();
+    List<MindMap> lista = [];
 
-    arquivos.forEach((entity) async {
-      // print(entity.path);
+    for (var entity in arquivos) { // Substitui o forEach
       File file = File('${entity.path}');
-      if (file.existsSync()){
+      if (file.existsSync()) {
         String content = await file.readAsString();
         if (content != '') {
           Map<String, dynamic> jsonList = json.decode(content);
-          // print(jsonList);
-          MindMap mindMap = MindMap(
-            name: jsonList['name'],
-            nodes: jsonList['nodes'],
-            edges: jsonList['edges']
+          print(jsonList);
+          
+          lista.add(
+            MindMap.fromjson(
+              jsonList,
+              weight: await file.length(),
+              createdAt: file.statSync().changed,
+              modifiedAt: file.statSync().modified,
+            )
           );
-          listMindMap.add(mindMap);
-          // print(listMindMap);
+          print(lista);
         }
       }
-    });
+    }
+
+    listMindMap.value = lista; // Atribuição fora do loop
+    print(listMindMap.value); // Agora com dados corretos
   }
+
 
   saveMindMap(MindMap mindMap) async {
     var folder = await mapsFolder();
     File file = File('${folder.path}/${mindMap.name}.dat');
-    String content = json.encode(mindMap.toJson());
-    file.writeAsString(content);
-    file.createSync();
+    if(!file.existsSync()){
+      String content = json.encode(mindMap.toJson());
+      file.writeAsString(content);
+      file.createSync();
+    }
   }
 
   int getMaxIdByType(Type T) {
