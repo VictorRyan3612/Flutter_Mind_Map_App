@@ -124,12 +124,14 @@ class MindMap {
 
   MindMap({
     this.name = '',
-    this.nodes,
-    this.edges,
+    List<Node>? nodes,
+    List<Edge>? edges,
     this.weight = 0,
     DateTime? createdAt,
     DateTime? modifiedAt,
-  })  : createdAt = createdAt ?? DateTime.now(),
+  })  : nodes = nodes ?? [], // Se nodes for null, usa uma lista vazia
+        edges = edges ?? [],   // Se edges for null, usa uma lista vazia
+        createdAt = createdAt ?? DateTime.now(),
         modifiedAt = modifiedAt ?? DateTime.now();
 
   // Método para converter para JSON
