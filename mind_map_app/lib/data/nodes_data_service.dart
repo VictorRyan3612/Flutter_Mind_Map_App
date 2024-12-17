@@ -59,13 +59,24 @@ class Edge{
       'id': id,
       'idSource': idSource,
       'idDestination': idDestination,
-      'color': color, 
+      'color': color.value, 
       'size': size,
       'curvad': curvad,
       'arrow': arrow,
     };
   }
-  
+
+  static Edge fromJson(Map<String, dynamic> json){
+    return Edge(
+      id: json['id'],
+      idSource: json['idSource'], 
+      idDestination: json['idDestination'],
+      color: Color(json['color']),
+      arrow: json['arrow'],
+      curvad: json['curvad'],
+      size: json['size'],
+    );
+  }
   // Example of creation using determineEdgeColor:
   // Edge(idSouce: 0, idDestination: 1, color: Edge.determineEdgeColor(context, nodesDataService.firstSelectedNode.value!.color));
 } 
@@ -103,21 +114,59 @@ void showContextMenu(BuildContext context,
     );
   }   
 }
-class MindMap{
-  String name; 
+class MindMap {
+  String name;
   List<Node>? nodes = [];
   List<Edge>? edges = [];
+  int weight; // Peso do arquivo (em bytes)
+  DateTime createdAt; // Data de criação
+  DateTime modifiedAt; // Data de modificação
 
-  MindMap({required this.name, this.nodes, this.edges});
+  MindMap({
+    this.name = '',
+    this.nodes,
+    this.edges,
+    this.weight = 0,
+    DateTime? createdAt,
+    DateTime? modifiedAt,
+  })  : createdAt = createdAt ?? DateTime.now(),
+        modifiedAt = modifiedAt ?? DateTime.now();
 
-  Map<String, dynamic> toJson(){
+  // Método para converter para JSON
+  Map<String, dynamic> toJson() {
+    List<Map<String, dynamic>> jsonNodes = [];
+    nodes?.forEach((element) {
+      jsonNodes.add(element.toJson());
+    });
     return {
       'name': name,
-      'nodes': nodes,
-      'edges': edges
+      'nodes': jsonNodes,
+      'edges': edges,
     };
   }
+
+  // Método para criar a partir de JSON
+  static MindMap fromjson(Map<String, dynamic> json,
+      {int weight = 0, DateTime? createdAt, DateTime? modifiedAt}) {
+    List<Node> nodes = [];
+    for (var element in json['nodes']) {
+      nodes.add(Node.fromJson(element));
+    }
+    List<Edge> edges = [];
+    for (var element in json['edges']) {
+      edges.add(Edge.fromJson(element));
+    }
+    return MindMap(
+      name: json['name'],
+      nodes: nodes,
+      edges: edges,
+      weight: weight,
+      createdAt: createdAt ?? DateTime.now(),
+      modifiedAt: modifiedAt ?? DateTime.now(),
+    );
+  }
 }
+
 
 class NodesDataService {
   ValueNotifier<MindMap?> mindMap= ValueNotifier(null);
