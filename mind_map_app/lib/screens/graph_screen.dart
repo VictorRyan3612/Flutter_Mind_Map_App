@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:mind_map_app/data/nodes_data_service.dart';
 import 'package:mind_map_app/utils/functions_list_tiles.dart';
+import 'package:mind_map_app/widgets/app_bar.dart';
 import 'package:mind_map_app/widgets/chart_painter.dart';
 import 'package:mind_map_app/widgets/edges_painter.dart';
 import 'package:mind_map_app/widgets/node_widget.dart';
@@ -36,146 +37,149 @@ class GraphScreen extends HookWidget {
         graphPosition.dy + chartOffset.value.dy + (MediaQuery.of(context).size.height / 2),
       );
     }
-    return InteractiveViewer(
-      child: ValueListenableBuilder(
-        valueListenable: nodesDataService.nodes,
-        builder: (context, nodesValue, child) {
-          return Stack(
-            children: [
-              GestureDetector(
-                onPanUpdate: (details) {
-                  chartOffset.value = Offset(
-                    chartOffset.value.dx + details.delta.dx,
-                    chartOffset.value.dy + details.delta.dy,
-                  );
-
-                    // Atualiza a posição de cada nó com base no deslocamento
-                  
-                  // Notifica os listeners após atualizar as posições dos nós
-                  nodesDataService.nodes.notifyListeners();
-                },
-                onPanEnd: (details) {
-                  print('\n');
-                  Timer(const Duration(milliseconds: 500), () {
-                    for (var element in nodesValue) {
-                      print("${element.id}: ${element.position}");
-                    }
-                  });
-                },
-                onTapDown: (details) {
-                  nodesDataService.isEditing.value = false;
-                  nodesDataService.firstSelectedNode.value = null;
-                  nodesDataService.secondSelectedNode.value = null;
-                  nodesDataService.isSelecting.value = false;
-
-                  displayedCoordinates.value = localToGraphCoordinates(details.localPosition);
-                  print('Local: ${details.localPosition}');
-                  print('Display: ${displayedCoordinates.value}');
-                  
-                },
-                onDoubleTapDown: (details) {
-                  if (nodesDataService.firstSelectedNode.value == null) {
-                    nodesDataService.isSelecting.value = false;
-                    nodesDataService.isEditing.value = false;
-
-                    showContextMenu(context, positionOffset: details.localPosition, listTiles: functionListTileGraph(context, localToGraphCoordinates(details.localPosition)));
-                  }
-                },
-                onSecondaryTapDown: (details) {
-                  nodesDataService.isEditing.value = false;
-                  nodesDataService.firstSelectedNode.value = null;
-                  nodesDataService.isSelecting.value = false;
-
-                  showContextMenu(context, positionOffset: details.localPosition, listTiles: functionListTileGraph(context, localToGraphCoordinates(details.localPosition)));
-                },
-                child: Stack(
-                  children: [
-                    ValueListenableBuilder(
-                      valueListenable: nodesDataService.edges,
-                      builder: (context, edgesValue, child) {
-                        return CustomPaint(
-                          size: Size.infinite,
-                          painter: EdgesPainter(
-                            edgesValue.toList(),
-                            graphToLocalCoordinates, // Passamos a função de conversão para o painter
-
-
-                          ),
-                        );
+    return Scaffold(
+      appBar: MyAppBar(title: 'mapa',modeMindMap: true),
+      body: InteractiveViewer(
+        child: ValueListenableBuilder(
+          valueListenable: nodesDataService.nodes,
+          builder: (context, nodesValue, child) {
+            return Stack(
+              children: [
+                GestureDetector(
+                  onPanUpdate: (details) {
+                    chartOffset.value = Offset(
+                      chartOffset.value.dx + details.delta.dx,
+                      chartOffset.value.dy + details.delta.dy,
+                    );
+      
+                      // Atualiza a posição de cada nó com base no deslocamento
+                    
+                    // Notifica os listeners após atualizar as posições dos nós
+                    nodesDataService.nodes.notifyListeners();
+                  },
+                  onPanEnd: (details) {
+                    print('\n');
+                    Timer(const Duration(milliseconds: 500), () {
+                      for (var element in nodesValue) {
+                        print("${element.id}: ${element.position}");
                       }
-                    ),
-                    CustomPaint(
-                      size: Size(double.infinity, double.infinity),
-                      painter: ChartPainter(chartOffset.value),
-                    ),
-                    for (int i = 0; i < nodesValue.length; i++)
-                    Positioned(
-                      left: graphToLocalCoordinates(nodesValue[i].position).dx,
-                        top: graphToLocalCoordinates(nodesValue[i].position).dy,
-                      child: GestureDetector(
-                        onDoubleTapDown: (details) {
-                          nodesDataService.isEditing.value = true;
-                          nodesDataService.firstSelectedNode.value = nodesValue[i];
-                          nodesDataService.secondSelectedNode.value = null;
-                          nodesDataService.isSelecting.value = false;
-                        },
-                        onTapDown: (details) {
-                          if (nodesDataService.isSelecting.value == false) {
+                    });
+                  },
+                  onTapDown: (details) {
+                    nodesDataService.isEditing.value = false;
+                    nodesDataService.firstSelectedNode.value = null;
+                    nodesDataService.secondSelectedNode.value = null;
+                    nodesDataService.isSelecting.value = false;
+      
+                    displayedCoordinates.value = localToGraphCoordinates(details.localPosition);
+                    print('Local: ${details.localPosition}');
+                    print('Display: ${displayedCoordinates.value}');
+                    
+                  },
+                  onDoubleTapDown: (details) {
+                    if (nodesDataService.firstSelectedNode.value == null) {
+                      nodesDataService.isSelecting.value = false;
+                      nodesDataService.isEditing.value = false;
+      
+                      showContextMenu(context, positionOffset: details.localPosition, listTiles: functionListTileGraph(context, localToGraphCoordinates(details.localPosition)));
+                    }
+                  },
+                  onSecondaryTapDown: (details) {
+                    nodesDataService.isEditing.value = false;
+                    nodesDataService.firstSelectedNode.value = null;
+                    nodesDataService.isSelecting.value = false;
+      
+                    showContextMenu(context, positionOffset: details.localPosition, listTiles: functionListTileGraph(context, localToGraphCoordinates(details.localPosition)));
+                  },
+                  child: Stack(
+                    children: [
+                      ValueListenableBuilder(
+                        valueListenable: nodesDataService.edges,
+                        builder: (context, edgesValue, child) {
+                          return CustomPaint(
+                            size: Size.infinite,
+                            painter: EdgesPainter(
+                              edgesValue.toList(),
+                              graphToLocalCoordinates, // Passamos a função de conversão para o painter
+      
+      
+                            ),
+                          );
+                        }
+                      ),
+                      CustomPaint(
+                        size: Size(double.infinity, double.infinity),
+                        painter: ChartPainter(chartOffset.value),
+                      ),
+                      for (int i = 0; i < nodesValue.length; i++)
+                      Positioned(
+                        left: graphToLocalCoordinates(nodesValue[i].position).dx,
+                          top: graphToLocalCoordinates(nodesValue[i].position).dy,
+                        child: GestureDetector(
+                          onDoubleTapDown: (details) {
+                            nodesDataService.isEditing.value = true;
                             nodesDataService.firstSelectedNode.value = nodesValue[i];
                             nodesDataService.secondSelectedNode.value = null;
-                            
-                          } else {
-                            nodesDataService.secondSelectedNode.value = nodesValue[i];
-
-                            nodesDataService.edges.value.add(Edge(idSource: nodesDataService.firstSelectedNode.value!.id, idDestination: nodesDataService.secondSelectedNode.value!.id, color: nodesDataService.firstSelectedNode.value!.color));
-
-                            nodesDataService.edges.notifyListeners();
-                          }
-                          nodesDataService.isSelecting.value = false;
-                          nodesDataService.secondSelectedNode.value = null;
-                          nodesDataService.firstSelectedNode.value = null;
-                        },
-                        onSecondaryTapDown: (details) {
-                          nodesDataService.firstSelectedNode.value = nodesValue[i];
-
-                          showContextMenu(context, positionOffset: details.globalPosition, listTiles: functionListTileNode(context, details.localPosition));
-                          
-                          nodesDataService.isEditing.value = false;
-                          nodesDataService.firstSelectedNode.value = nodesValue[i];
-                          nodesDataService.secondSelectedNode.value = null;
-                        },
-                        onPanStart: (details) {
-                            startPosition.value = nodesValue[i].position;
+                            nodesDataService.isSelecting.value = false;
                           },
-                        onPanUpdate: (details) {
-                          nodesValue[i].position = Offset(
-                            startPosition.value.dx + details.localPosition.dx,
-                            startPosition.value.dy + details.localPosition.dy,
-                          );
-                          nodesDataService.nodes.notifyListeners();
-                          
-                        },
-                        child: NodeWidget(
-                          node: nodesValue[i],
+                          onTapDown: (details) {
+                            if (nodesDataService.isSelecting.value == false) {
+                              nodesDataService.firstSelectedNode.value = nodesValue[i];
+                              nodesDataService.secondSelectedNode.value = null;
+                              
+                            } else {
+                              nodesDataService.secondSelectedNode.value = nodesValue[i];
+      
+                              nodesDataService.edges.value.add(Edge(idSource: nodesDataService.firstSelectedNode.value!.id, idDestination: nodesDataService.secondSelectedNode.value!.id, color: nodesDataService.firstSelectedNode.value!.color));
+      
+                              nodesDataService.edges.notifyListeners();
+                            }
+                            nodesDataService.isSelecting.value = false;
+                            nodesDataService.secondSelectedNode.value = null;
+                            nodesDataService.firstSelectedNode.value = null;
+                          },
+                          onSecondaryTapDown: (details) {
+                            nodesDataService.firstSelectedNode.value = nodesValue[i];
+      
+                            showContextMenu(context, positionOffset: details.globalPosition, listTiles: functionListTileNode(context, details.localPosition));
+                            
+                            nodesDataService.isEditing.value = false;
+                            nodesDataService.firstSelectedNode.value = nodesValue[i];
+                            nodesDataService.secondSelectedNode.value = null;
+                          },
+                          onPanStart: (details) {
+                              startPosition.value = nodesValue[i].position;
+                            },
+                          onPanUpdate: (details) {
+                            nodesValue[i].position = Offset(
+                              startPosition.value.dx + details.localPosition.dx,
+                              startPosition.value.dy + details.localPosition.dy,
+                            );
+                            nodesDataService.nodes.notifyListeners();
+                            
+                          },
+                          child: NodeWidget(
+                            node: nodesValue[i],
+                          ),
                         ),
                       ),
-                    ),
-                    
-                  ],
+                      
+                    ],
+                  ),
                 ),
-              ),
-              
-              Positioned(
-                top: 16,
-                left: 16,
-                child: Text(
-                  'Coordenadas: (${displayedCoordinates.value.dx.toStringAsFixed(1)}, ${displayedCoordinates.value.dy.toStringAsFixed(1)})',
-                  style: TextStyle(fontSize: 16, color: Colors.blue),
+                
+                Positioned(
+                  top: 16,
+                  left: 16,
+                  child: Text(
+                    'Coordenadas: (${displayedCoordinates.value.dx.toStringAsFixed(1)}, ${displayedCoordinates.value.dy.toStringAsFixed(1)})',
+                    style: TextStyle(fontSize: 16, color: Colors.blue),
+                  ),
                 ),
-              ),
-            ],
-          );
-        }
+              ],
+            );
+          }
+        ),
       ),
     );
   }
