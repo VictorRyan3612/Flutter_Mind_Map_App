@@ -172,8 +172,6 @@ class NodesDataService {
   ValueNotifier<MindMap?> mindMap = ValueNotifier(null);
   ValueNotifier<List<MindMap>> listMindMap = ValueNotifier([]);
 
-  ValueNotifier<List<Node>> nodes = ValueNotifier([]);
-  ValueNotifier<List<Edge>> edges = ValueNotifier([]);
   ValueNotifier<Node?> firstSelectedNode = ValueNotifier(null);
   ValueNotifier<Node?> secondSelectedNode = ValueNotifier(null);
   ValueNotifier<bool> isEditing = ValueNotifier(false);

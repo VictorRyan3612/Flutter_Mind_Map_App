@@ -15,8 +15,9 @@ List<ListTile> functionListTileNode(BuildContext context, Offset position){
     ListTile(
       title: Text("Excluir"),
       onTap: () {
-        nodesDataService.firstSelectedNode.value = null;
+        // nodesDataService.firstSelectedNode.value = null;
         nodesDataService.deleteNode(nodesDataService.firstSelectedNode.value!);
+        nodesDataService.mindMap.notifyListeners();
         Navigator.pop(context);
       },
     ),
@@ -31,7 +32,8 @@ List<ListTile> functionListTileNode(BuildContext context, Offset position){
         }); 
         if (color is Color) {
           nodesDataService.firstSelectedNode.value!.color = color;
-          nodesDataService.nodes.notifyListeners();
+          nodesDataService.updateNode(nodesDataService.firstSelectedNode.value!);
+          nodesDataService.mindMap.notifyListeners();
           
         }
         Navigator.pop(context);
@@ -45,9 +47,10 @@ List<ListTile> functionListTileGraph(BuildContext context, Offset position){
     ListTile(
       title: Text("Criar Node"),
       onTap: () {
-        nodesDataService.nodes.value.add(Node(id:nodesDataService.getMaxIdByType(Node), position: position));
+        nodesDataService.addNode(Node(id:nodesDataService.getMaxIdByType(Node), position: position));
+        // nodesDataService.nodes.value.add();
 
-        nodesDataService.nodes.notifyListeners();
+        nodesDataService.mindMap.notifyListeners();
         Navigator.pop(context);
       },
     ),

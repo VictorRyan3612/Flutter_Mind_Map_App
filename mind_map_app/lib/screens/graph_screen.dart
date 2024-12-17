@@ -119,10 +119,11 @@ class GraphScreen extends HookWidget {
                                 
                               } else {
                                 nodesDataService.secondSelectedNode.value = nodes[i];
+                                Edge edge = Edge(idSource: nodesDataService.firstSelectedNode.value!.id, idDestination: nodesDataService.secondSelectedNode.value!.id, color: nodesDataService.firstSelectedNode.value!.color);
+                                
+                                nodesDataService.addEdge(edge);
         
-                                nodesDataService.edges.value.add(Edge(idSource: nodesDataService.firstSelectedNode.value!.id, idDestination: nodesDataService.secondSelectedNode.value!.id, color: nodesDataService.firstSelectedNode.value!.color));
-        
-                                nodesDataService.edges.notifyListeners();
+                                nodesDataService.mindMap.notifyListeners();
                               }
                               nodesDataService.isSelecting.value = false;
                               nodesDataService.secondSelectedNode.value = null;
