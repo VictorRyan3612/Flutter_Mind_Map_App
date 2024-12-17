@@ -40,9 +40,12 @@ class GraphScreen extends HookWidget {
     return Scaffold(
       appBar: MyAppBar(title: 'mapa',modeMindMap: true),
       body: InteractiveViewer(
-        child: ValueListenableBuilder(
-          valueListenable: nodesDataService.nodes,
-          builder: (context, nodesValue, child) {
+        child: ValueListenableBuilder<MindMap?>(
+          valueListenable: nodesDataService.mindMap,
+          builder: (context, mindMapValue, child) {
+            final nodes = mindMapValue?.nodes ?? [];
+            final edges = mindMapValue?.edges ?? [];
+
             return Stack(
               children: [
                 GestureDetector(
@@ -51,16 +54,11 @@ class GraphScreen extends HookWidget {
                       chartOffset.value.dx + details.delta.dx,
                       chartOffset.value.dy + details.delta.dy,
                     );
-      
-                      // Atualiza a posição de cada nó com base no deslocamento
-                    
-                    // Notifica os listeners após atualizar as posições dos nós
-                    nodesDataService.nodes.notifyListeners();
+                    nodesDataService.mindMap.notifyListeners();
                   },
                   onPanEnd: (details) {
-                    print('\n');
                     Timer(const Duration(milliseconds: 500), () {
-                      for (var element in nodesValue) {
+                      for (var element in nodes) {
                         print("${element.id}: ${element.position}");
                       }
                     });
@@ -88,97 +86,84 @@ class GraphScreen extends HookWidget {
                     nodesDataService.isEditing.value = false;
                     nodesDataService.firstSelectedNode.value = null;
                     nodesDataService.isSelecting.value = false;
-      
                     showContextMenu(context, positionOffset: details.localPosition, listTiles: functionListTileGraph(context, localToGraphCoordinates(details.localPosition)));
                   },
                   child: Stack(
                     children: [
-                      ValueListenableBuilder(
-                        valueListenable: nodesDataService.edges,
-                        builder: (context, edgesValue, child) {
-                          return CustomPaint(
-                            size: Size.infinite,
-                            painter: EdgesPainter(
-                              edgesValue.toList(),
-                              graphToLocalCoordinates, // Passamos a função de conversão para o painter
-      
-      
-                            ),
-                          );
-                        }
-                      ),
                       CustomPaint(
-                        size: Size(double.infinity, double.infinity),
-                        painter: ChartPainter(chartOffset.value),
-                      ),
-                      for (int i = 0; i < nodesValue.length; i++)
-                      Positioned(
-                        left: graphToLocalCoordinates(nodesValue[i].position).dx,
-                          top: graphToLocalCoordinates(nodesValue[i].position).dy,
-                        child: GestureDetector(
-                          onDoubleTapDown: (details) {
-                            nodesDataService.isEditing.value = true;
-                            nodesDataService.firstSelectedNode.value = nodesValue[i];
-                            nodesDataService.secondSelectedNode.value = null;
-                            nodesDataService.isSelecting.value = false;
-                          },
-                          onTapDown: (details) {
-                            if (nodesDataService.isSelecting.value == false) {
-                              nodesDataService.firstSelectedNode.value = nodesValue[i];
-                              nodesDataService.secondSelectedNode.value = null;
-                              
-                            } else {
-                              nodesDataService.secondSelectedNode.value = nodesValue[i];
-      
-                              nodesDataService.edges.value.add(Edge(idSource: nodesDataService.firstSelectedNode.value!.id, idDestination: nodesDataService.secondSelectedNode.value!.id, color: nodesDataService.firstSelectedNode.value!.color));
-      
-                              nodesDataService.edges.notifyListeners();
-                            }
-                            nodesDataService.isSelecting.value = false;
-                            nodesDataService.secondSelectedNode.value = null;
-                            nodesDataService.firstSelectedNode.value = null;
-                          },
-                          onSecondaryTapDown: (details) {
-                            nodesDataService.firstSelectedNode.value = nodesValue[i];
-      
-                            showContextMenu(context, positionOffset: details.globalPosition, listTiles: functionListTileNode(context, details.localPosition));
-                            
-                            nodesDataService.isEditing.value = false;
-                            nodesDataService.firstSelectedNode.value = nodesValue[i];
-                            nodesDataService.secondSelectedNode.value = null;
-                          },
-                          onPanStart: (details) {
-                              startPosition.value = nodesValue[i].position;
-                            },
-                          onPanUpdate: (details) {
-                            nodesValue[i].position = Offset(
-                              startPosition.value.dx + details.localPosition.dx,
-                              startPosition.value.dy + details.localPosition.dy,
-                            );
-                            nodesDataService.nodes.notifyListeners();
-                            
-                          },
-                          child: NodeWidget(
-                            node: nodesValue[i],
-                          ),
+                        size: Size.infinite,
+                        painter: EdgesPainter(
+                          edges.toList(),
+                          graphToLocalCoordinates,
                         ),
                       ),
-                      
+                      CustomPaint(
+                        size: Size.infinite,
+                        painter: ChartPainter(chartOffset.value),
+                      ),
+                      for (int i = 0; i < nodes.length; i++)
+                        Positioned(
+                          left: graphToLocalCoordinates(nodes[i].position).dx,
+                          top: graphToLocalCoordinates(nodes[i].position).dy,
+                          child: GestureDetector(
+                            onDoubleTapDown: (details) {
+                              nodesDataService.isEditing.value = true;
+                              nodesDataService.firstSelectedNode.value = nodes[i];
+                              nodesDataService.secondSelectedNode.value = null;
+                              nodesDataService.isSelecting.value = false;
+                            },
+                            onTapDown: (details) {
+                              if (nodesDataService.isSelecting.value == false) {
+                                nodesDataService.firstSelectedNode.value = nodes[i];
+                                nodesDataService.secondSelectedNode.value = null;
+                                
+                              } else {
+                                nodesDataService.secondSelectedNode.value = nodes[i];
+        
+                                nodesDataService.edges.value.add(Edge(idSource: nodesDataService.firstSelectedNode.value!.id, idDestination: nodesDataService.secondSelectedNode.value!.id, color: nodesDataService.firstSelectedNode.value!.color));
+        
+                                nodesDataService.edges.notifyListeners();
+                              }
+                              nodesDataService.isSelecting.value = false;
+                              nodesDataService.secondSelectedNode.value = null;
+                              nodesDataService.firstSelectedNode.value = null;
+                            },
+                            onSecondaryTapDown: (details) {
+                              nodesDataService.firstSelectedNode.value = nodes[i];
+                              showContextMenu(
+                                context,
+                                positionOffset: details.globalPosition,
+                                listTiles: functionListTileNode(context, details.localPosition),
+                              );
+                            },
+                            onPanStart: (details) {
+                              startPosition.value = nodes[i].position;
+                            },
+                            onPanUpdate: (details) {
+                              nodes[i].position = Offset(
+                                startPosition.value.dx + details.localPosition.dx,
+                                startPosition.value.dy + details.localPosition.dy,
+                              );
+                              nodesDataService.mindMap.notifyListeners();
+                            },
+                          
+                            child: NodeWidget(node: nodes[i]),
+                          ),
+                        ),
                     ],
                   ),
                 ),
-                
                 Positioned(
                   top: 16,
                   left: 16,
                   child: Text(
                     'Coordenadas: (${displayedCoordinates.value.dx.toStringAsFixed(1)}, ${displayedCoordinates.value.dy.toStringAsFixed(1)})',
-                    style: TextStyle(fontSize: 16, color: Colors.blue),
+                    style: const TextStyle(fontSize: 16, color: Colors.blue),
                   ),
                 ),
               ],
             );
-          }
+          },
         ),
       ),
     );
