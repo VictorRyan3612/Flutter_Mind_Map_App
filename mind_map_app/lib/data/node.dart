@@ -57,10 +57,11 @@ class Node {
       'text': text,
       'image': image,
       'color': color.value,  // Serialize Color to int (color value)
-      'position': {'dx': position.dx, 'dy': position.dy}, // Serialize position
+      'positionDy': position.dy, // Serialize position
+      'positionDx': position.dx, // Serialize position
       'width': width,
       'height': height,
-      'borderRadius': borderRadiusValue, // Apenas o valor do raio
+      'borderRadiusValue': borderRadiusValue, // Apenas o valor do raio
     };
   }
 
@@ -75,8 +76,8 @@ class Node {
       height: json['height'],
       width: json['width'],
       text: json['text'],
-      position: Offset(json['position']['dx'], json['position']['dy']),
-      borderRadiusValue: json['borderRadius'], // Apenas o valor do raio
+      position: Offset(json['positionDx'], json['positionDy']),
+      borderRadiusValue: json['borderRadiusValue'], // Apenas o valor do raio
     );
   }
 
