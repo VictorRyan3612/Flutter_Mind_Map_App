@@ -40,8 +40,8 @@ class MyAppBar extends StatelessWidget implements PreferredSizeWidget{
                   
                   onConfirm: (name) {
                     print('No confirm');
-                    nodesDataService.mindMap.value = MindMap(name: controller.text);
                     List<MindMap> lista = nodesDataService.listMindMap.value;
+                    nodesDataService.mindMap.value = MindMap(id: lista.length+1,name: controller.text);
                     lista.add(nodesDataService.mindMap.value!);
                     nodesDataService.listMindMap.value = List.from(lista);
 
