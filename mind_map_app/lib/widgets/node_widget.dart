@@ -55,11 +55,30 @@ class NodeWidget extends HookWidget {
               mainAxisSize: MainAxisSize.min,
               children: [
                 if (node.image != null && node.image!.isNotEmpty)
-                  Image.file(
-                    File(node.image!),
-                    width: 100,
-                    height: 100,
-                    fit: BoxFit.cover,
+                  InkWell(
+                    child: Image.file(
+                      File(node.image!),
+                      width: 100,
+                      height: 100,
+                      fit: BoxFit.cover,
+                    ),
+                    onTap: () => showDialog(context: context, builder: (context) {
+                      return AlertDialog(
+                        actions: [
+                          TextButton(
+                            onPressed: () {
+                              node.image = null;
+                              nodesDataService.mindMap.notifyListeners();
+                              Navigator.pop(context);
+                            }, 
+                          child: Text('Excluir'))
+                        ],
+                        content: Image.file(
+                          File(node.image!),
+                          fit: BoxFit.cover,
+                        ),
+                        );
+                    }),
                   ),
                 Flexible(
                   child: TextField(
