@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 class Node {
   int id;
   String text;
+  String? image;
   Color color;
   Offset position;
   double width;
@@ -12,6 +13,7 @@ class Node {
   Node({
     this.id = 0,
     this.text = '',
+    this.image,
     this.color = Colors.red,
     this.position = Offset.zero,
     double? width,
@@ -53,6 +55,7 @@ class Node {
     return {
       'id': id,
       'text': text,
+      'image': image,
       'color': color.value,  // Serialize Color to int (color value)
       'position': {'dx': position.dx, 'dy': position.dy}, // Serialize position
       'width': width,
@@ -67,6 +70,7 @@ class Node {
   static Node fromJson(Map<String, dynamic> json) {
     return Node(
       id: json['id'],
+      image: json['image'],
       color: Color(json['color']),  // Deserialize Color from int
       height: json['height'],
       width: json['width'],
