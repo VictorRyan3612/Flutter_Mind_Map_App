@@ -77,3 +77,40 @@ List<ListTile> functionListTileGraph(BuildContext context, Offset position){
   ];
   return listtiles;
 }
+List<ListTile> functionListTileMaps(BuildContext context, Offset position){
+  List<ListTile> listtiles = [
+    ListTile(
+      title: Text("Excluir"),
+      onTap: () async{
+        Navigator.pop(context);
+        showDialog(context: context, builder: (context) {
+          return AlertDialog(
+            title: Text('Confirmar exclusão?'),
+            actions: [
+              TextButton(
+                onPressed: () {
+                Navigator.pop(context);
+                }, 
+                child: Text('Cancelar'),
+              ),
+              TextButton(
+                onPressed: () {
+                  nodesDataService.deleteMindMap(nodesDataService.mindMap.value!.id);
+                  Navigator.pop(context);
+                  
+                }, 
+                child: Text('Confirmar'),
+              ),
+              
+            ],
+          );
+        },
+        
+        );
+        nodesDataService.mindMap.notifyListeners();
+      },
+      
+    ),
+  ];
+  return listtiles;
+}

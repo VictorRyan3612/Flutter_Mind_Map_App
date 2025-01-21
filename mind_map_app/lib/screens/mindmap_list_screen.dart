@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:mind_map_app/data/nodes_data_service.dart';
+import 'package:mind_map_app/utils/functions_list_tiles.dart';
 import 'package:mind_map_app/widgets/app_bar.dart';
 
 class MindMapListScreen extends StatelessWidget {
@@ -19,6 +20,10 @@ class MindMapListScreen extends StatelessWidget {
               runSpacing: 8, // Espaçamento vertical
               children: listMindMap.map((mindMap) {
                 return InkWell(
+                  onSecondaryTapDown: (details) {
+                    nodesDataService.mindMap.value = mindMap;
+                    showContextMenu(context, positionOffset: details.globalPosition, listTiles: functionListTileMaps(context, details.globalPosition));
+                  },
                   onTap: () {
                     // Definir o mapa clicado
                     nodesDataService.mindMap.value = mindMap;
