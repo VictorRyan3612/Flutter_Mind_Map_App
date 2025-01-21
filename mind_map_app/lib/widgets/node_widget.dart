@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:mind_map_app/data/node.dart';
 import 'package:mind_map_app/data/nodes_data_service.dart';
+import 'package:mind_map_app/data/unsplashapi.dart';
 
 class NodeWidget extends HookWidget {
   final Node node;
@@ -56,8 +57,8 @@ class NodeWidget extends HookWidget {
               children: [
                 if (node.image != null && node.image!.isNotEmpty)
                   InkWell(
-                    child: Image.file(
-                      File(node.image!),
+                    child: Image.network(
+                      node.image!,
                       width: 100,
                       height: 100,
                       fit: BoxFit.cover,
@@ -73,8 +74,8 @@ class NodeWidget extends HookWidget {
                             }, 
                           child: Text('Excluir'))
                         ],
-                        content: Image.file(
-                          File(node.image!),
+                        content: Image.network(
+                          node.image!,
                           fit: BoxFit.cover,
                         ),
                         );
@@ -82,6 +83,22 @@ class NodeWidget extends HookWidget {
                   ),
                 Flexible(
                   child: TextField(
+        //             onSubmitted: (value) async{
+        //               var result =  await fetchImageForText(value);
+        // if (result != '') {
+        //   nodesDataService.firstSelectedNode.value!.image = result;
+        //   nodesDataService.updateNode(nodesDataService.firstSelectedNode.value!);
+        //   print(nodesDataService.firstSelectedNode.value!.image);
+        // }
+        //             },
+        //             onEditingComplete: () async{
+        //               var result =  await fetchImageForText(textController.text);
+        //               if (result != '') {
+        //                 nodesDataService.firstSelectedNode.value!.image = result;
+        //                 nodesDataService.updateNode(nodesDataService.firstSelectedNode.value!);
+        //                 print(nodesDataService.firstSelectedNode.value!.image);
+        //               }
+        //             },
                     onChanged: (value) {
                       _debounce?.cancel();
                       _debounce =

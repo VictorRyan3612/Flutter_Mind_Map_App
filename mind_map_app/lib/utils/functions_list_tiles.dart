@@ -5,6 +5,7 @@ import 'package:flutter_vicr_widgets/flutter_vicr_widgets.dart';
 import 'package:mind_map_app/data/node.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:mind_map_app/data/nodes_data_service.dart';
+import 'package:mind_map_app/data/unsplashapi.dart';
 
 List<ListTile> functionListTileNode(BuildContext context, Offset position){
   var listtiles = [
@@ -48,14 +49,24 @@ List<ListTile> functionListTileNode(BuildContext context, Offset position){
     ListTile(
       title: Text('Adicionar Imagem'),
       onTap: () async{
-        var result = await FilePicker.platform.pickFiles(type: FileType.image);
-        if (result != null && result.files.single.path != null) {
-          var image = File(result.files.single.path!);
-          nodesDataService.firstSelectedNode.value!.image = image.path;
+        var result =  await fetchImageForText(nodesDataService.firstSelectedNode.value!.text);
+        if (result != '') {
+          nodesDataService.firstSelectedNode.value!.image = result;
           nodesDataService.updateNode(nodesDataService.firstSelectedNode.value!);
-          // nodesDataService.firstSelectedNode.value!.image = Image.file(image);
-          // print(nodesDataService.firstSelectedNode.value!.image);
+          print(nodesDataService.firstSelectedNode.value!.image);
         }
+
+
+
+        // var result = await FilePicker.platform.pickFiles(type: FileType.image);
+        // if (result != null && result.files.single.path != null) {
+        //   var image = File(result.files.single.path!);
+        //   print(result.files.single.path);
+        //   nodesDataService.firstSelectedNode.value!.image = image.path;
+        //   nodesDataService.updateNode(nodesDataService.firstSelectedNode.value!);
+        //   // nodesDataService.firstSelectedNode.value!.image = Image.file(image);
+        //   // print(nodesDataService.firstSelectedNode.value!.image);
+        // }
         
       },
     )
