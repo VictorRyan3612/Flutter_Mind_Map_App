@@ -2,8 +2,10 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:mind_map_app/data/db.dart';
 import 'package:mind_map_app/data/node.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:sqflite/sqflite.dart';
 
 
 
@@ -162,7 +164,6 @@ class MindMap {
       'modifiedAt': modifiedAt.toIso8601String(),
     };
   }
-
   // Método para criar a partir de JSON
   static MindMap fromjson(Map<String, dynamic> json,
       {int weight = 0, DateTime? createdAt, DateTime? modifiedAt}) {
@@ -200,85 +201,46 @@ class NodesDataService {
   ValueNotifier<bool> isEditing = ValueNotifier(false);
   ValueNotifier<bool> isSelecting = ValueNotifier(false);
 
-  // Retornar o Id mais alto possível dependendo do tipo node ou edge
+  // Método para obter a pasta de mapas mentais
   Future<Directory> mapsFolder() async {
     Directory directory = await getApplicationSupportDirectory();
-    Directory directoryMindMaps = Directory('${directory.path}\\mindMaps');
-    directoryMindMaps.createSync();
+    Directory directoryMindMaps = Directory('${directory.path}/mindMaps');
+    if (!directoryMindMaps.existsSync()) {
+      directoryMindMaps.createSync();
+    }
     return directoryMindMaps;
   }
 
-  loadMindMaps() async {
-    Directory folder = await mapsFolder();
-    var arquivos = folder.listSync();
-    List<MindMap> lista = [];
-
-    for (var entity in arquivos) { // Substitui o forEach
-      File file = File('${entity.path}');
-      if (file.existsSync()) {
-        String content = await file.readAsString();
-        if (content.isNotEmpty) {
-          Map<String, dynamic> jsonList = json.decode(content);
-          lista.add(
-            MindMap.fromjson(
-              jsonList,
-              weight: await file.length(),
-              createdAt: file.statSync().changed,
-              modifiedAt: file.statSync().modified,
-            ),
-          );
-        }
-      }
-    }
-
-    listMindMap.value = lista;
+  // Método para carregar os mapas mentais do banco de dados
+  Future<void> loadMindMaps() async {
+    List<MindMap> dbMindMaps = await DB.loadMindMaps();
+    listMindMap.value = dbMindMaps;
+    listMindMap.notifyListeners();
   }
 
-  saveMindMap(MindMap mindMap) async {
-    var folder = await mapsFolder();
-    File file = File('${folder.path}/${mindMap.name}.dat');
-    String content = json.encode(mindMap.toJson());
-    file.writeAsString(content);
-    file.createSync();
+  // Método para salvar um mapa mental no banco de dados
+  Future<void> saveMindMap(MindMap mindMap) async {
+    await DB.saveMindMap(mindMap);
+    // Atualiza a lista de mapas mentais após salvar
+    await loadMindMaps();
   }
 
+  // Obter o maior ID com base no tipo (Node ou Edge)
   int getMaxIdByType(Type T) {
-    assert(T == Node || T == Edge, 'Type must be node or edge');
-
-    int nextId = 0;
+    assert(T == Node || T == Edge, 'Type must be Node or Edge');
     int maxId = -1;
-    List<dynamic> listfinal = [];
 
-    if (T == Node) {
-      listfinal = mindMap.value?.nodes ?? [];
-    }
-    if (T == Edge) {
-      listfinal = mindMap.value?.edges ?? [];
-    }
+    List<dynamic> list = T == Node
+        ? (mindMap.value?.nodes ?? [])
+        : (mindMap.value?.edges ?? []);
 
-    if (listfinal.isNotEmpty) {
-      for (var item in listfinal) {
-        if (item.id > maxId) {
-          maxId = item.id;
-        }
+    for (var item in list) {
+      if (item.id > maxId) {
+        maxId = item.id;
       }
     }
-    nextId = maxId + 1;
-    return nextId;
+    return maxId + 1;
   }
-
-  deleteNode(Node deletedNode) {
-    final mindMapValue = mindMap.value;
-    if (mindMapValue != null) {
-      mindMapValue.edges?.removeWhere((element) {
-        return element.idSource == deletedNode.id || element.idDestination == deletedNode.id;
-      });
-      mindMapValue.nodes?.remove(deletedNode);
-      mindMap.value = mindMapValue; // Atualiza o mindMap para notificar os listeners
-      mindMap.notifyListeners();
-    }
-  }
-
   dynamic getFirstByType(Type T, int id) {
     assert(T == Node || T == Edge, 'Type must be node or edge');
 
@@ -289,53 +251,82 @@ class NodesDataService {
     }
     return null;
   }
+  // Método para deletar um nó e suas arestas associadas
+  Future<void> deleteNode(Node deletedNode) async {
+    final mindMapValue = mindMap.value;
+    if (mindMapValue != null) {
+      // Remove arestas conectadas ao nó
+      mindMapValue.edges?.removeWhere((edge) =>
+          edge.idSource == deletedNode.id || edge.idDestination == deletedNode.id);
+      // Remove o nó
+      mindMapValue.nodes?.remove(deletedNode);
+
+      // Atualiza o banco de dados
+      final db = await DB.getDatabase();
+      await db.delete('edges', where: 'idSource = ? OR idDestination = ?', whereArgs: [deletedNode.id, deletedNode.id]);
+      await db.delete('nodes', where: 'id = ?', whereArgs: [deletedNode.id]);
+
+      // Notifica as alterações
+      mindMap.value = mindMapValue;
+      mindMap.notifyListeners();
+    }
+  }
 
   // Método para adicionar um nó
-  addNode(Node node) {
+  Future<void> addNode(Node node) async {
     final mindMapValue = mindMap.value;
     if (mindMapValue != null) {
       mindMapValue.nodes?.add(node);
-      mindMap.value = mindMapValue; // Atualiza o mindMap
-      mindMap.notifyListeners();
+      final db = await DB.getDatabase();
 
+      await db.insert('nodes', node.toJson(), conflictAlgorithm: ConflictAlgorithm.replace);
+      mindMap.value = mindMapValue;
+      mindMap.notifyListeners();
     }
   }
 
   // Método para adicionar uma aresta
-  addEdge(Edge edge) {
+  Future<void> addEdge(Edge edge) async {
     final mindMapValue = mindMap.value;
     if (mindMapValue != null) {
       mindMapValue.edges?.add(edge);
-      mindMap.value = mindMapValue; // Atualiza o mindMap
+      final db = await DB.getDatabase();
+      await db.insert('edges', edge.toJson(), conflictAlgorithm: ConflictAlgorithm.replace);
+      mindMap.value = mindMapValue;
       mindMap.notifyListeners();
     }
   }
 
   // Método para atualizar um nó
-  updateNode(Node node) {
+  Future<void> updateNode(Node node) async {
     final mindMapValue = mindMap.value;
     if (mindMapValue != null) {
       final index = mindMapValue.nodes?.indexWhere((n) => n.id == node.id);
       if (index != null && index >= 0) {
         mindMapValue.nodes?[index] = node;
-        mindMap.value = mindMapValue; // Atualiza o mindMap
+        final db = await DB.getDatabase();
+        await db.update('nodes', node.toJson(), where: 'id = ?', whereArgs: [node.id]);
+        mindMap.value = mindMapValue;
         mindMap.notifyListeners();
       }
     }
   }
 
   // Método para atualizar uma aresta
-  updateEdge(Edge edge) {
+  Future<void> updateEdge(Edge edge) async {
     final mindMapValue = mindMap.value;
     if (mindMapValue != null) {
       final index = mindMapValue.edges?.indexWhere((e) => e.id == edge.id);
       if (index != null && index >= 0) {
         mindMapValue.edges?[index] = edge;
-        mindMap.value = mindMapValue; // Atualiza o mindMap
+        final db = await DB.getDatabase();
+        await db.update('edges', edge.toJson(), where: 'id = ?', whereArgs: [edge.id]);
+        mindMap.value = mindMapValue;
         mindMap.notifyListeners();
       }
     }
   }
 }
+
 
 NodesDataService nodesDataService = NodesDataService();
