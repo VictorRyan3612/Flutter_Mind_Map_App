@@ -14,6 +14,7 @@ dependencies:
   flutter_vicr_widgets:
     git: https://github.com/VictorRyan3612/flutter_vicr_widgets.git
   cupertino_icons: ^1.0.6
+  file_picker: ^8.1.7
 
 dev_dependencies:
   flutter_test:
