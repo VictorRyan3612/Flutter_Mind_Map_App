@@ -61,8 +61,8 @@ class Edge{
       'idDestination': idDestination,
       'color': color.value, 
       'size': size,
-      'curvad': curvad,
-      'arrow': arrow,
+      'curvad': curvad ? 1 : 0, // Convertendo bool para INTEGER
+      'arrow': arrow ? 1 : 0,   // Convertendo bool para INTEGER
     };
   }
 
@@ -72,8 +72,8 @@ class Edge{
       idSource: json['idSource'], 
       idDestination: json['idDestination'],
       color: Color(json['color']),
-      arrow: json['arrow'],
-      curvad: json['curvad'],
+      curvad: json['curvad'] == 1, // Convertendo INTEGER de volta para bool
+      arrow: json['arrow'] == 1,   // Convertendo INTEGER de volta para bool
       size: json['size'],
     );
   }
@@ -115,6 +115,7 @@ void showContextMenu(BuildContext context,
   }   
 }
 class MindMap {
+  int id;
   String name;
   List<Node>? nodes = [];
   List<Edge>? edges = [];
@@ -123,6 +124,7 @@ class MindMap {
   DateTime modifiedAt; // Data de modificação
 
   MindMap({
+    this.id = 0,
     this.name = '',
     List<Node>? nodes,
     List<Edge>? edges,
@@ -140,25 +142,44 @@ class MindMap {
     nodes?.forEach((element) {
       jsonNodes.add(element.toJson());
     });
+    List<Map<String, dynamic>> jsonEdges = [];
+    edges?.forEach((element) {
+      jsonEdges.add(element.toJson());
+    });
     return {
+      'id': id,
       'name': name,
       'nodes': jsonNodes,
-      'edges': edges,
+      'edges': jsonEdges,
+    };
+  }
+  Map<String, dynamic> toDatabaseJson() {
+    return {
+      'id': id,
+      'name': name,
+      'weight': weight,
+      'createdAt': createdAt.toIso8601String(),
+      'modifiedAt': modifiedAt.toIso8601String(),
     };
   }
 
   // Método para criar a partir de JSON
   static MindMap fromjson(Map<String, dynamic> json,
       {int weight = 0, DateTime? createdAt, DateTime? modifiedAt}) {
-    List<Node> nodes = [];
-    for (var element in json['nodes']) {
-      nodes.add(Node.fromJson(element));
-    }
-    List<Edge> edges = [];
-    for (var element in json['edges']) {
-      edges.add(Edge.fromJson(element));
-    }
+    List<Node> nodes = (json['nodes'] as List<dynamic>? ?? [])
+      .map((nodeJson) => Node.fromJson(nodeJson))
+      .toList();
+
+  // Garante que 'edges' seja uma lista ou uma lista vazia
+  List<Edge> edges = (json['edges'] as List<dynamic>? ?? [])
+      .map((edgeJson) => Edge.fromJson(edgeJson))
+      .toList();
+    // List<Edge> edges = [];
+    // for (var element in json['edges']) {
+    //   edges.add(Edge.fromJson(element));
+    // }
     return MindMap(
+      id: json['id'],
       name: json['name'],
       nodes: nodes,
       edges: edges,
