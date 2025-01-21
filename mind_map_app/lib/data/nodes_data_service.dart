@@ -271,7 +271,39 @@ class NodesDataService {
       mindMap.notifyListeners();
     }
   }
+  Future<void> deleteMindMap(int mindMapId) async {
+  final db = await DB.getDatabase();
 
+  try {
+    // Exclui o mapa mental da tabela 'mindmaps' com base no id
+    await db.delete(
+      'mindmaps',
+      where: 'id = ?',
+      whereArgs: [mindMapId],
+    );
+
+    // Também pode ser necessário excluir os nós e arestas relacionados a este mapa mental
+    await db.delete(
+      'nodes',
+      where: 'mindMapId = ?',
+      whereArgs: [mindMapId],
+    );
+    
+    await db.delete(
+      'edges',
+      where: 'mindMapId = ?',
+      whereArgs: [mindMapId],
+    );
+
+    print('MindMap com id $mindMapId deletado com sucesso.');
+    listMindMap.value.removeWhere((element) => element.id == mindMapId,);
+    mindMap.value = null;
+    listMindMap.notifyListeners();
+    mindMap.notifyListeners();
+  } catch (e) {
+    print('Erro ao deletar o MindMap: $e');
+  }
+}
   // Método para adicionar um nó
   Future<void> addNode(Node node) async {
     final mindMapValue = mindMap.value;
