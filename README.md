@@ -8,16 +8,16 @@ A mind map app in flutter, my inspiration is miMind
 ### Choose the desired Operating System:
 
 For Windows:
-- flutter create --platforms=windows .
+- flutter create --platforms windows .
 
 For MacOS:
-- flutter create --platforms=macos .
+- flutter create --platforms macos .
 
 For Linux:
-- flutter create --platforms=linux .
+- flutter create --platforms linux .
 
 For Web:
-- flutter create --platforms=web
+- flutter create --platforms web
 
 ### Run the program on the desired operating system:
 - flutter run -d windows
