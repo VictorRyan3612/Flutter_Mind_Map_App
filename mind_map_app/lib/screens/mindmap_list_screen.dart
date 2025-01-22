@@ -13,6 +13,13 @@ class MindMapListScreen extends StatelessWidget {
       body: ValueListenableBuilder<List<MindMap>>(
         valueListenable: nodesDataService.listMindMap,
         builder: (context, listMindMap, _) {
+          if (listMindMap.isEmpty) return Center(child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text('Não há mapas', style: TextStyle(fontSize: 30),),
+              Icon(Icons.not_listed_location_sharp, size: 60,)
+            ],
+          ));
           return Padding(
             padding: const EdgeInsets.all(8.0),
             child: Wrap(
