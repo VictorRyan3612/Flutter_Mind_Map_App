@@ -40,6 +40,9 @@ class GraphScreen extends HookWidget {
     return Scaffold(
       appBar: MyAppBar(title: 'mapa',modeMindMap: true),
       body: InteractiveViewer(
+        // minScale: 0.1,
+        // maxScale: 10.0,
+        // boundaryMargin: EdgeInsets.all(double.infinity),
         child: ValueListenableBuilder<MindMap?>(
           valueListenable: nodesDataService.mindMap,
           builder: (context, mindMapValue, child) {
@@ -63,25 +66,25 @@ class GraphScreen extends HookWidget {
                       }
                     });
                   },
-                  onTapDown: (details) {
-                    nodesDataService.isEditing.value = false;
-                    nodesDataService.firstSelectedNode.value = null;
-                    nodesDataService.secondSelectedNode.value = null;
-                    nodesDataService.isSelecting.value = false;
+                  // onTapDown: (details) {
+                  //   // nodesDataService.isEditing.value = false;
+                  //   // nodesDataService.firstSelectedNode.value = null;
+                  //   // nodesDataService.secondSelectedNode.value = null;
+                  //   // nodesDataService.isSelecting.value = false;
       
-                    displayedCoordinates.value = localToGraphCoordinates(details.localPosition);
-                    print('Local: ${details.localPosition}');
-                    print('Display: ${displayedCoordinates.value}');
+                  //   displayedCoordinates.value = localToGraphCoordinates(details.localPosition);
+                  //   print('Local: ${details.localPosition}');
+                  //   print('Display: ${displayedCoordinates.value}');
                     
-                  },
-                  onDoubleTapDown: (details) {
-                    if (nodesDataService.firstSelectedNode.value == null) {
-                      nodesDataService.isSelecting.value = false;
-                      nodesDataService.isEditing.value = false;
+                  // },
+                  // onDoubleTapDown: (details) {
+                  //   if (nodesDataService.firstSelectedNode.value == null) {
+                  //     nodesDataService.isSelecting.value = false;
+                  //     nodesDataService.isEditing.value = false;
       
-                      showContextMenu(context, positionOffset: details.localPosition, listTiles: functionListTileGraph(context, localToGraphCoordinates(details.localPosition)));
-                    }
-                  },
+                  //     showContextMenu(context, positionOffset: details.localPosition, listTiles: functionListTileGraph(context, localToGraphCoordinates(details.localPosition)));
+                  //   }
+                  // },
                   onSecondaryTapDown: (details) {
                     nodesDataService.isEditing.value = false;
                     nodesDataService.firstSelectedNode.value = null;
