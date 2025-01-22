@@ -47,10 +47,27 @@ List<ListTile> functionListTileNode(BuildContext context, Offset position){
       },
     ),
     ListTile(
-      title: Text('Adicionar Imagem'),
+      title: Text('Adicionar Imagem via web'),
       onTap: () async{
         var result =  await fetchImageForText(nodesDataService.firstSelectedNode.value!.text);
-        if (result != '') {
+        
+        if (result == '') {
+          showDialog(context: context, 
+            builder: (context) {
+              return AlertDialog(
+                title: Text('Error'),
+                content: Text('Verifique a conexão com a internet ou a chave privada'),
+                actions: [
+                  TextButton(
+                    onPressed: () {
+                    Navigator.pop(context);
+                  },
+                  child: Text('Confirmar'))
+                ],
+              );
+          });
+        }
+        else{
           nodesDataService.firstSelectedNode.value!.image = result;
           nodesDataService.updateNode(nodesDataService.firstSelectedNode.value!);
           print(nodesDataService.firstSelectedNode.value!.image);
